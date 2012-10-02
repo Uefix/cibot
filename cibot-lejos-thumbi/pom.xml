@@ -1,0 +1,72 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<parent>
+		<groupId>cibot-main</groupId>
+		<artifactId>cibot-main</artifactId>
+		<version>1.0</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+    <artifactId>cibot-lejos-thumbi</artifactId>
+	<name>ciBOT - module for lejos-thumbi</name>
+
+	<dependencies>
+
+        <dependency>
+            <groupId>lejos-nxt</groupId>
+            <artifactId>classes</artifactId>
+            <version>0.9</version>
+        </dependency>
+	</dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArguments>
+                        <bootclasspath>${NXJ_HOME}/lib/nxt/classes.jar</bootclasspath>
+                    </compilerArguments>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.uefix.uenxt.mavenplugins</groupId>
+                <artifactId>uenxt-lejos-maven-plugin</artifactId>
+                <version>0.9</version>
+                <configuration>
+                    <linkVerbose>true</linkVerbose>
+                    <uploadVerbose>true</uploadVerbose>
+                    <nxjHome>${NXJ_HOME}</nxjHome>
+                    <nxjClassesJar>${NXJ_HOME}/lib/nxt/classes.jar</nxjClassesJar>
+                    <uploadViaBluetooth>true</uploadViaBluetooth>
+                    <uploadViaUsb>false</uploadViaUsb>
+                    <uploadNxtAddress>001653124C98</uploadNxtAddress>
+                    <uploadBinaries/>
+                </configuration>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                        <version>1.6.4</version>
+                    </dependency>
+
+                    <dependency>
+                        <groupId>net.sf.bluecove</groupId>
+                        <artifactId>bluecove</artifactId>
+                        <version>2.1.0</version>
+                    </dependency>
+
+                    <dependency>
+                        <groupId>net.sf.bluecove</groupId>
+                        <artifactId>bluecove-gpl</artifactId>
+                        <version>2.1.0</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+</project>

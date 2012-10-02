@@ -1,0 +1,35 @@
+<cibotConfig>
+
+    <thumbi>
+        <connectionUri>usb://NXT_A</connectionUri>
+        <timeout>10000</timeout>
+    </thumbi>
+
+    <feedReader>
+        <feeds>
+            <feed>http://JENKINS_HOST:8080/jenkins/job/NAME_OF_THE_JOB1/rssAll</feed>
+            <feed>http://JENKINS_HOST:8080/jenkins/job/NAME_OF_THE_JOB2/rssAll</feed>
+        </feeds>
+
+        <statusMapping status="BUILD_OK">
+            <text>stabil</text>
+            <text>wieder normal</text>
+            <text>stable</text>
+            <text>back to normal</text>
+        </statusMapping>
+
+        <statusMapping status="BUILD_UNSTABLE">
+            <text>tests neu fehlgeschlagen</text>
+            <text>tests schlagen immer noch fehl</text>
+            <text>fehlgeschlagene tests</text>
+            <text>defekt seit diesem build</text>
+
+            <text>tests are still failing</text>
+            <text>TODO neu fehlgeschlagen auf englisch</text>
+            <text>tests failures</text>
+            <text>broken since this build</text>
+        </statusMapping>
+
+    </feedReader>
+
+</cibotConfig>
