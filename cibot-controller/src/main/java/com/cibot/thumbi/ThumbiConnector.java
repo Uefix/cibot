@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -20,7 +21,7 @@ import java.io.InterruptedIOException;
  * Date: 01.10.12
  * Time: 06:59
  */
-@Component
+@Service
 public class ThumbiConnector implements NXTCommLogListener  {
 
 
@@ -97,6 +98,11 @@ public class ThumbiConnector implements NXTCommLogListener  {
 
     private class ConnectionThread extends Thread {
 
+        private ConnectionThread() {
+            super.setName("THMBI_CON-" + getId());
+        }
+
+
         private DataInputStream inputStream;
 
         private DataOutputStream outputStream;
@@ -171,6 +177,12 @@ public class ThumbiConnector implements NXTCommLogListener  {
 
 
     private class WatchDogThread extends Thread {
+
+
+        private WatchDogThread() {
+            setName("THMBI_WTCHDG");
+        }
+
 
         public void run() {
             lastCommunicationMillis = System.currentTimeMillis();
