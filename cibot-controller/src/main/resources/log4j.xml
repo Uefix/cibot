@@ -9,6 +9,9 @@
     <logger name="com.intel.bluetooth">
         <level value="warn"/>
     </logger>
+    <logger name="org.springframework">
+        <level value="warn"/>
+    </logger>
     <root>
         <level value="debug" />
         <appender-ref ref="CA" />

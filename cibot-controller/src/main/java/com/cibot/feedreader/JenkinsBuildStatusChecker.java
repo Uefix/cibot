@@ -1,7 +1,7 @@
 package com.cibot.feedreader;
 
 import com.cibot.config.CIBotConfiguration;
-import com.cibot.model.BuildStatus;
+import com.cibot.cimodel.BuildStatus;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -10,6 +10,8 @@ import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -27,6 +29,7 @@ import java.util.List;
 public class JenkinsBuildStatusChecker implements BuildStatusChecker {
 
 
+    @Autowired
     private CIBotConfiguration configuration;
 
 
@@ -64,12 +67,6 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
             throw new RuntimeException("Error while getting the current build status for " + feedUrl, e);
         }
     }
-
-
-    public void setConfiguration(CIBotConfiguration configuration) {
-        this.configuration = configuration;
-    }
-
 
 
     //----  I n t e r n a l  ----//

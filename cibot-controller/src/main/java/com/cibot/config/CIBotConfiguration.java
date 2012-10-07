@@ -1,6 +1,6 @@
 package com.cibot.config;
 
-import com.cibot.model.BuildStatus;
+import com.cibot.cimodel.BuildStatus;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;

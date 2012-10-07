@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>cibot-main</groupId>
 		<artifactId>cibot-main</artifactId>
-		<version>1.0</version>
+		<version>1.2</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
@@ -13,12 +13,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>cibot-model</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-        <dependency>
             <groupId>lejos-pc</groupId>
             <artifactId>pccomm</artifactId>
             <version>0.9</version>
@@ -84,24 +78,23 @@
             <version>2.2.6</version>
         </dependency>
 
-
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
             <version>2.2</version>
         </dependency>
-<!--
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>3.1.1.RELEASE</version>
         </dependency>
-        -->
 	</dependencies>
 
 
 
     <build>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <!--
             The shade-plugin is used to include the required dependencies into
@@ -121,8 +114,14 @@
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
-                                        <Main-Class>com.cibot.ControllerMain</Main-Class>
+                                        <Main-Class>com.cibot.CIBotMain</Main-Class>
                                     </manifestEntries>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.handlers</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.schemas</resource>
                                 </transformer>
                             </transformers>
                             <filters>

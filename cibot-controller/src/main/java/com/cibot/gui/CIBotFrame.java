@@ -1,12 +1,14 @@
 package com.cibot.gui;
 
-import com.cibot.model.BuildStatus;
-import com.cibot.model.CIBotModel;
-import com.cibot.thumbi.ConnectionListener;
+import com.cibot.cimodel.BuildStatus;
+import com.cibot.cimodel.CIModel;
+import com.cibot.thumbi.ThumbiConnectionListener;
 import com.cibot.util.CIBotUtil;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -28,15 +30,17 @@ import java.util.Observer;
 /**
  * @author Uefix
  */
-public class ThumbiWindow extends JFrame implements Observer, ConnectionListener {
+public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ThumbiWindow.class);
+
+    private static final Logger LOG = LoggerFactory.getLogger(CIBotFrame.class);
 
 
     private final Dimension BLUETOOTH_ICON_SIZE = new Dimension(50, 67);
 
 
-    private CIBotModel model;
+    @Autowired
+    private CIModel ciModel;
 
 
     private JLabel thumbLabel;
@@ -53,7 +57,7 @@ public class ThumbiWindow extends JFrame implements Observer, ConnectionListener
 
 
     public void initialize() {
-        Preconditions.checkState(model != null, "Model not set");
+        Preconditions.checkState(ciModel != null, "Model not set");
 
         loadIcons();
 
@@ -69,8 +73,8 @@ public class ThumbiWindow extends JFrame implements Observer, ConnectionListener
         setSize(475, 475);
         centerFrame();
 
-        updateBuildStatus(model);
-        model.addObserver(this);
+        updateBuildStatus(ciModel);
+        ciModel.addObserver(this);
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -92,14 +96,14 @@ public class ThumbiWindow extends JFrame implements Observer, ConnectionListener
 
     @Override
     public void update(Observable obs, Object arg) {
-        CIBotModel model = (CIBotModel) obs;
+        CIModel model = (CIModel) obs;
         updateBuildStatus(model);
         thumbLabel.validate();
         thumbLabel.repaint();
     }
 
 
-    //---- ConnectionListener ----//
+    //---- ThumbiConnectionListener ----//
 
     @Override
     public void connected(Object connectionInfo) {
@@ -118,13 +122,13 @@ public class ThumbiWindow extends JFrame implements Observer, ConnectionListener
     private void loadIcons() {
         final ClassLoader classLoader = getClass().getClassLoader();
 
-        URL thumbUpUrl = classLoader.getResource("thumbup.jpg");
+        URL thumbUpUrl = classLoader.getResource("images/thumbup.jpg");
         thumbUpIcon = new ImageIcon(thumbUpUrl);
 
-        URL thumbDownUrl = classLoader.getResource("thumbdown.jpg");
+        URL thumbDownUrl = classLoader.getResource("images/thumbdown.jpg");
         thumbDownIcon = new ImageIcon(thumbDownUrl);
 
-        URL blueToothUrl = classLoader.getResource("bluetooth.png");
+        URL blueToothUrl = classLoader.getResource("images/bluetooth.png");
         blueToothIcon = new ImageIcon(blueToothUrl);
     }
 
@@ -176,7 +180,7 @@ public class ThumbiWindow extends JFrame implements Observer, ConnectionListener
     }
 
 
-    private void updateBuildStatus(CIBotModel model) {
+    private void updateBuildStatus(CIModel model) {
         switch (model.getCurrentStatus()) {
             case BUILD_OK:
                 thumbLabel.setIcon(thumbUpIcon);
@@ -204,20 +208,20 @@ public class ThumbiWindow extends JFrame implements Observer, ConnectionListener
 
     //---- Getter and Setter ----//
 
-    public void setModel(CIBotModel model) {
-        this.model = model;
+    public void setCiModel(CIModel ciModel) {
+        this.ciModel = ciModel;
     }
 
 
-    //---- Hauptstrecke ;) ----//
+    //---- Hauptstrecke for tests ----//
 
     public static void main(String[] args) {
 
         try {
-            CIBotModel model = new CIBotModel();
+            CIModel model = new CIModel();
 
-            ThumbiWindow window = new ThumbiWindow();
-            window.setModel(model);
+            CIBotFrame window = new CIBotFrame();
+            window.setCiModel(model);
             window.initialize();
 
             CIBotUtil.sleep(1500);

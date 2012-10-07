@@ -1,13 +1,15 @@
 package com.cibot.thumbi;
 
 import com.cibot.config.CIBotConfiguration;
-import com.cibot.model.CIBotModel;
+import com.cibot.cimodel.CIModel;
 import com.cibot.util.CIBotUtil;
 import lejos.pc.comm.NXTCommLogListener;
 import lejos.pc.comm.NXTConnector;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -18,6 +20,7 @@ import java.io.InterruptedIOException;
  * Date: 01.10.12
  * Time: 06:59
  */
+@Component
 public class ThumbiConnector implements NXTCommLogListener  {
 
 
@@ -30,11 +33,15 @@ public class ThumbiConnector implements NXTCommLogListener  {
     }
 
 
+    @Autowired
     private CIBotConfiguration configuration;
 
-    private CIBotModel model;
+    @Autowired
+    private CIModel ciModel;
 
-    private ConnectionListener connectionListener;
+
+    private ThumbiConnectionListener connectionListener;
+
 
     private volatile long lastCommunicationMillis;
 
@@ -124,8 +131,8 @@ public class ThumbiConnector implements NXTCommLogListener  {
                 connectionListener.connected(connectionType);
 
                 if ("get_status".equals(clientMessage)) {
-                    synchronized (model) {
-                        outputStream.writeBytes(model.getCurrentStatus().toString() + "\n");
+                    synchronized (ciModel) {
+                        outputStream.writeBytes(ciModel.getCurrentStatus().toString() + "\n");
                         outputStream.flush();
                     }
                 }
@@ -189,12 +196,12 @@ public class ThumbiConnector implements NXTCommLogListener  {
 
 
 
-    public void setModel(CIBotModel model) {
-        this.model = model;
+    public void setCiModel(CIModel ciModel) {
+        this.ciModel = ciModel;
     }
 
 
-    public void setConnectionListener(ConnectionListener connectionListener) {
+    public void setConnectionListener(ThumbiConnectionListener connectionListener) {
         this.connectionListener = connectionListener;
     }
 

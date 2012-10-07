@@ -1,20 +1,27 @@
-package com.cibot.model;
+package com.cibot.cimodel;
 
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.Observable;
 
 /**
- * This model contains the current build status observed by all CIBots.
- * 
+ * This cimodel contains the current build status observed by all CIBots.
+ *
+ * @author Uefix
  * @author j-n00b
  */
-public class CIBotModel extends Observable {
+@Component
+public class CIModel extends Observable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CIBotModel.class);
+
+    private static final Logger LOG = LoggerFactory.getLogger(CIModel.class);
+
 
     private BuildStatus currentStatus = BuildStatus.BUILD_FAILED;
+
 
     /**
      * Gets the currentStatus
@@ -31,10 +38,7 @@ public class CIBotModel extends Observable {
      * @param currentStatus the currentStatus to set
      */
     public void setCurrentStatus(BuildStatus currentStatus) {
-        // we do not accept null as current status!
-        if (currentStatus == null) {
-            return;
-        }
+        Preconditions.checkArgument(currentStatus != null, "Given status must not be null");
 
         BuildStatus oldStatus = this.currentStatus;
         this.currentStatus = currentStatus;

@@ -4,10 +4,9 @@
 
 	<groupId>cibot-main</groupId>
 	<artifactId>cibot-main</artifactId>
-	<version>1.0</version>
+	<version>1.2</version>
 	<packaging>pom</packaging>
 	<name>ciBOT</name>
-	<url>http://maven.apache.org</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -15,7 +14,6 @@
 
 	<modules>
 		<module>cibot-controller</module>
-		<module>cibot-model</module>
 		<module>cibot-lejos-thumbi</module>
 	</modules>
 

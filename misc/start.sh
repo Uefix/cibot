@@ -2,8 +2,8 @@
 #export LD_LIBRARY_PATH=/Users/uefix/cibot/executable
 
 CIBOT_PATH=`pwd`
-CIBOT_CLASSPATH="$CIBOT_PATH/cibot-controller-1.0.jar:$CIBOT_PATH"
+CIBOT_CONFIGFILE="$CIBOT_PATH/cibot.xml"
 
-echo CIBOT_CLASSPATH=$CIBOT_CLASSPATH
+echo CIBOT_CONFIGFILE=$CIBOT_CONFIGFILE
 
-java -d32 -cp $CIBOT_CLASSPATH com.cibot.ControllerMain
+java -d32 -jar cibot-controller.jar $CIBOT_CONFIGFILE

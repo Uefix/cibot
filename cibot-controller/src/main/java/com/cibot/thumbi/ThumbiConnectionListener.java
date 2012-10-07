@@ -3,7 +3,7 @@ package com.cibot.thumbi;
 /**
  * @author Uefix
  */
-public interface ConnectionListener {
+public interface ThumbiConnectionListener {
 
     void connected(Object connectionInfo);
 

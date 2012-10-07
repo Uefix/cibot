@@ -1,7 +1,8 @@
 package com.cibot.config;
 
-import com.cibot.model.BuildStatus;
+import com.cibot.cimodel.BuildStatus;
 import com.google.common.collect.Lists;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -20,9 +21,15 @@ public class CIBotConfigurationLoaderTest {
     private CIBotConfigurationLoader loader = new CIBotConfigurationLoader();
 
 
+    @Before
+    public void setup() {
+        System.setProperty(CIBotConfigurationLoader.CONFIG_FILENAME_SYSPROPERTY, TEST_CONFIG_FILE);
+    }
+
+
     @Test
     public void loadConfiguration_testConfig_returnsExpectedResult() {
-        CIBotConfiguration result = loader.loadConfiguration(TEST_CONFIG_FILE);
+        CIBotConfiguration result = loader.loadConfiguration();
 
         CIBotConfiguration expected = new CIBotConfiguration();
         expected.getThumbi().setConnectionUri("usb://NXT_A");

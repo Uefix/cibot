@@ -1,4 +1,4 @@
-package com.cibot.model;
+package com.cibot.cimodel;
 
 /**
  * Defines the possible states a single CI build can adopt.

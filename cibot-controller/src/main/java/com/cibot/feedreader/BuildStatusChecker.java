@@ -1,6 +1,6 @@
 package com.cibot.feedreader;
 
-import com.cibot.model.BuildStatus;
+import com.cibot.cimodel.BuildStatus;
 
 /**
  * Utility to determine the current status of a CI build.
