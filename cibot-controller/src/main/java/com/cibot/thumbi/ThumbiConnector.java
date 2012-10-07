@@ -207,21 +207,10 @@ public class ThumbiConnector implements NXTCommLogListener  {
 
 
 
-
-    public void setCiModel(CIModel ciModel) {
-        this.ciModel = ciModel;
-    }
-
-
     public void setConnectionListener(ThumbiConnectionListener connectionListener) {
         this.connectionListener = connectionListener;
     }
 
-
-
-    public void setConfiguration(CIBotConfiguration configuration) {
-        this.configuration = configuration;
-    }
 
 
     //---- NXTCommLogListener ----//
