@@ -5,7 +5,7 @@ package com.cibot.thumbi;
  */
 public interface ThumbiConnectionListener {
 
-    void connected(Object connectionInfo);
+    void connected(ThumbiConnectionType connectionType);
 
-    void disconnected(Object connectionInfo);
+    void disconnected();
 }

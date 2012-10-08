@@ -28,11 +28,6 @@ public class ThumbiConnector implements NXTCommLogListener  {
     private static final Logger LOGGER = LoggerFactory.getLogger(ThumbiConnector.class);
 
 
-    public static enum ConnectionType {
-        USB,
-        BLUETOOTH
-    }
-
 
     @Autowired
     private CIBotConfiguration configuration;
@@ -63,12 +58,12 @@ public class ThumbiConnector implements NXTCommLogListener  {
     }
 
 
-    public ConnectionType getConnectionType() {
+    public ThumbiConnectionType getConnectionType() {
         String uri = configuration.getThumbi().getConnectionUri();
         if (uri.startsWith("usb://")) {
-            return ConnectionType.USB;
+            return ThumbiConnectionType.USB;
         } else if (uri.startsWith("btspp://")) {
-            return ConnectionType.BLUETOOTH;
+            return ThumbiConnectionType.BLUETOOTH;
         }
         return null;
     }
@@ -133,7 +128,7 @@ public class ThumbiConnector implements NXTCommLogListener  {
 
                 lastCommunicationMillis = System.currentTimeMillis();
 
-                ConnectionType connectionType = getConnectionType();
+                ThumbiConnectionType connectionType = getConnectionType();
                 connectionListener.connected(connectionType);
 
                 if ("get_status".equals(clientMessage)) {
@@ -151,7 +146,7 @@ public class ThumbiConnector implements NXTCommLogListener  {
             } finally {
                 reconnecting = false;
 
-                connectionListener.disconnected(null);
+                connectionListener.disconnected();
 
                 IOUtils.closeQuietly(inputStream);
                 IOUtils.closeQuietly(outputStream);

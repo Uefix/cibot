@@ -3,12 +3,12 @@ package com.cibot.gui;
 import com.cibot.cimodel.BuildStatus;
 import com.cibot.cimodel.CIModel;
 import com.cibot.thumbi.ThumbiConnectionListener;
+import com.cibot.thumbi.ThumbiConnectionType;
 import com.cibot.util.CIBotUtil;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -36,7 +36,7 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
     private static final Logger LOG = LoggerFactory.getLogger(CIBotFrame.class);
 
 
-    private final Dimension BLUETOOTH_ICON_SIZE = new Dimension(50, 67);
+    private final Dimension CONNECTION_ICON_SIZE = new Dimension(50, 67);
 
 
     @Autowired
@@ -45,13 +45,17 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
     private JLabel thumbLabel;
 
-    private JLabel blueToothLabel;
+    private JLabel connectedLabel;
+
 
     private ImageIcon thumbUpIcon;
 
     private ImageIcon thumbDownIcon;
 
     private ImageIcon blueToothIcon;
+
+    private ImageIcon usbIcon;
+
 
     private JPanel glassPanel;
 
@@ -63,13 +67,14 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
         thumbLabel = new JLabel(thumbUpIcon);
 
-        initBlueToothLabel();
+        initConnectedLabel();
+
         initLayout();
         initGlassPanel();
 
         setIconImage(thumbUpIcon.getImage());
-        setTitle("CIBot");
-        setBackground(Color.WHITE);
+        setTitle("ciBOT");
+        getContentPane().setBackground(Color.WHITE);
         setSize(475, 475);
         centerFrame();
 
@@ -106,13 +111,13 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
     //---- ThumbiConnectionListener ----//
 
     @Override
-    public void connected(Object connectionInfo) {
-        changeBlueToothConnectedIcon(true);
+    public void connected(ThumbiConnectionType connectionType) {
+        showConnectedIcon(connectionType);
     }
 
     @Override
-    public void disconnected(Object connectionInfo) {
-        changeBlueToothConnectedIcon(false);
+    public void disconnected() {
+        showConnectedIcon(null);
     }
 
 
@@ -130,6 +135,9 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
         URL blueToothUrl = classLoader.getResource("images/bluetooth.png");
         blueToothIcon = new ImageIcon(blueToothUrl);
+
+        URL usbUrl = classLoader.getResource("images/usb.png");
+        usbIcon = new ImageIcon(usbUrl);
     }
 
 
@@ -141,12 +149,13 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
     }
 
 
-    private void initBlueToothLabel() {
-        blueToothLabel = new JLabel();
-        blueToothLabel.setSize(BLUETOOTH_ICON_SIZE);
-        blueToothLabel.setMinimumSize(BLUETOOTH_ICON_SIZE);
-        blueToothLabel.setMaximumSize(BLUETOOTH_ICON_SIZE);
+    private void initConnectedLabel() {
+        connectedLabel = new JLabel();
+        connectedLabel.setSize(CONNECTION_ICON_SIZE);
+        connectedLabel.setMinimumSize(CONNECTION_ICON_SIZE);
+        connectedLabel.setMaximumSize(CONNECTION_ICON_SIZE);
     }
+
 
 
     private void initLayout() {
@@ -164,14 +173,14 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
         glassPanel = new JPanel(new GridBagLayout());
 
         Dimension glassPanelSize =
-                new Dimension((int) BLUETOOTH_ICON_SIZE.getWidth() + 10,
-                        (int) BLUETOOTH_ICON_SIZE.getHeight() + 10);
+                new Dimension((int) CONNECTION_ICON_SIZE.getWidth() + 10,
+                        (int) CONNECTION_ICON_SIZE.getHeight() + 10);
 
         GridBagConstraints con =
                 new GridBagConstraints(1, 1, 1, 1, 1.0d, 1.0d,
                         GridBagConstraints.SOUTHWEST, GridBagConstraints.BOTH, new Insets(5, 5, 0, 0), 0, 0);
 
-        glassPanel.add(blueToothLabel, con);
+        glassPanel.add(connectedLabel, con);
         glassPanel.setSize(glassPanelSize);
         glassPanel.setMinimumSize(glassPanelSize);
 
@@ -195,22 +204,18 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
     }
 
 
-    private void changeBlueToothConnectedIcon(boolean connected) {
-        if (!connected) {
-            blueToothLabel.setIcon(null);
-        } else {
-            blueToothLabel.setIcon(blueToothIcon);
+    private void showConnectedIcon(ThumbiConnectionType connectionType) {
+        if (connectionType == null) {
+            connectedLabel.setIcon(null);
+        } else if (connectionType == ThumbiConnectionType.BLUETOOTH) {
+            connectedLabel.setIcon(blueToothIcon);
+        } else if (connectionType == ThumbiConnectionType.USB) {
+            connectedLabel.setIcon(usbIcon);
         }
-        blueToothLabel.validate();
-        blueToothLabel.repaint();
+        connectedLabel.validate();
+        connectedLabel.repaint();
     }
 
-
-    //---- Getter and Setter ----//
-
-    public void setCiModel(CIModel ciModel) {
-        this.ciModel = ciModel;
-    }
 
 
     //---- Hauptstrecke for tests ----//
@@ -218,16 +223,19 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
     public static void main(String[] args) {
 
         try {
-            CIModel model = new CIModel();
-
             CIBotFrame window = new CIBotFrame();
-            window.setCiModel(model);
+            window.ciModel = new CIModel();
             window.initialize();
 
             CIBotUtil.sleep(1500);
-            model.setCurrentStatus(BuildStatus.BUILD_OK);
+            window.showConnectedIcon(ThumbiConnectionType.BLUETOOTH);
 
-            window.changeBlueToothConnectedIcon(true);
+            window.ciModel.setCurrentStatus(BuildStatus.BUILD_OK);
+            CIBotUtil.sleep(1500);
+            window.showConnectedIcon(null);
+
+            CIBotUtil.sleep(1500);
+            window.showConnectedIcon(ThumbiConnectionType.USB);
 
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
