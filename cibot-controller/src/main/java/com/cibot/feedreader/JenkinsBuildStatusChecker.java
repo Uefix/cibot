@@ -33,29 +33,11 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
     private CIBotConfiguration configuration;
 
 
-    private List<URL> urlList = Lists.newArrayList();
-
-
-    @Override
-    public void initialize() {
-        Preconditions.checkState(configuration != null, "Configuration not set");
-
-        urlList.clear();
-        for (String feedUrl : configuration.getFeedReader().getFeedUrls()) {
-            try {
-                urlList.add(new URL(feedUrl));
-            } catch (MalformedURLException shouldNotHappen) {
-                throw new RuntimeException("The given feed url '" + feedUrl + "' is incorrect!", shouldNotHappen);
-            }
-        }
-    }
-
-
     @Override
     public BuildStatus getCurrentBuildStatus() throws RuntimeException {
         URL feedUrl = null;
         try {
-            for (Iterator<URL> it = urlList.iterator(); it.hasNext(); ) {
+            for (Iterator<URL> it = configuration.getFeedReader().getFeedUrls().iterator(); it.hasNext(); ) {
                 feedUrl = it.next();
                 BuildStatus statusForUrl = getBuildStatus(feedUrl);
                 if (statusForUrl != BuildStatus.BUILD_OK) {

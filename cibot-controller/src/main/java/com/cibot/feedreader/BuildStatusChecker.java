@@ -19,6 +19,4 @@ public interface BuildStatusChecker {
      * @throws IllegalStateException if checking the build status fails for any reason
      */
     BuildStatus getCurrentBuildStatus() throws RuntimeException;
-
-    void initialize();
 }

@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 
 import javax.xml.bind.annotation.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -100,7 +101,7 @@ public class CIBotConfiguration {
     public static class FeedReader {
 
 
-        private List<String> feedUrls = Lists.newArrayList();
+        private List<URL> feedUrls = Lists.newArrayList();
 
         /**
          * http://www.mail-archive.com/cxf-user@incubator.apache.org/msg04723.html
@@ -110,11 +111,11 @@ public class CIBotConfiguration {
 
         @XmlElementWrapper(name = "feeds")
         @XmlElement(name = "feed")
-        public List<String> getFeedUrls() {
+        public List<URL> getFeedUrls() {
             return feedUrls;
         }
 
-        public void setFeedUrls(List<String> feedUrls) {
+        public void setFeedUrls(List<URL> feedUrls) {
             this.feedUrls = feedUrls;
         }
 
