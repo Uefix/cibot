@@ -183,6 +183,7 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
         glassPanel.add(connectedLabel, con);
         glassPanel.setSize(glassPanelSize);
         glassPanel.setMinimumSize(glassPanelSize);
+        glassPanel.setBackground(Color.WHITE);
 
         getLayeredPane().add(glassPanel, JLayeredPane.POPUP_LAYER);
 
