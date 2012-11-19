@@ -6,9 +6,13 @@
     </thumbi>
 
     <feedReader>
+        <logins>
+            <login id="jenkins" user="develop" password="pw123"/>
+        </logins>
+
         <feeds>
             <feed>http://JENKINS_HOST:8080/jenkins/job/NAME_OF_THE_JOB1/rssAll</feed>
-            <feed>http://JENKINS_HOST:8080/jenkins/job/NAME_OF_THE_JOB2/rssAll</feed>
+            <feed login="jenkins">http://JENKINS_HOST:8080/jenkins/job/NAME_OF_THE_JOB2/rssAll</feed>
         </feeds>
 
         <statusMapping status="BUILD_OK">
