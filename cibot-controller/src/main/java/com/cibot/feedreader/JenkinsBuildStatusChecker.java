@@ -1,32 +1,35 @@
 package com.cibot.feedreader;
 
-import com.cibot.config.CIBotConfiguration;
 import com.cibot.cimodel.BuildStatus;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+import com.cibot.config.CIBotConfiguration;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Iterator;
 import java.util.List;
 
 /**
  * Implementation that checks the build status of Jenkins CI builds.
  *
+ * @author Uefix
  * @author j-n00b
  */
 public class JenkinsBuildStatusChecker implements BuildStatusChecker {
+
+
+    private static final Logger LOG = LoggerFactory.getLogger(JenkinsBuildStatusChecker.class);
 
 
     @Autowired
@@ -35,18 +38,30 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
 
     @Override
     public BuildStatus getCurrentBuildStatus() throws RuntimeException {
-        URL feedUrl = null;
+        CIBotConfiguration.Feed feed = null;
         try {
-            for (Iterator<URL> it = configuration.getFeedReader().getFeedUrls().iterator(); it.hasNext(); ) {
-                feedUrl = it.next();
-                BuildStatus statusForUrl = getBuildStatus(feedUrl);
-                if (statusForUrl != BuildStatus.BUILD_OK) {
-                    return BuildStatus.BUILD_UNSTABLE;
+            boolean isUnstable = false;
+            Iterator<CIBotConfiguration.Feed> it = configuration.getFeedReader().getFeeds().iterator();
+            while (it.hasNext()) {
+
+                feed = it.next();
+
+                String user = null;
+                String password = null;
+
+                if (feed.hasLogin()) {
+                    CIBotConfiguration.Login loginConfig = configuration.getLogin(feed);
+                    user = loginConfig.getUser();
+                    password = loginConfig.getPassword();
+                }
+                BuildStatus statusForUrl = getBuildStatus(feed.getUrl(), user, password);
+                if (statusForUrl != BuildStatus.BUILD_OK && !isUnstable) {
+                    isUnstable = true;
                 }
             }
-            return BuildStatus.BUILD_OK;
+            return isUnstable ? BuildStatus.BUILD_UNSTABLE : BuildStatus.BUILD_OK;
         } catch (Exception e) {
-            throw new RuntimeException("Error while getting the current build status for " + feedUrl, e);
+            throw new RuntimeException((new StringBuilder()).append("Error while getting the current build status for ").append(feed).toString(), e);
         }
     }
 
@@ -54,13 +69,21 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
     //----  I n t e r n a l  ----//
 
 
-    private BuildStatus getBuildStatus(URL url) throws IOException, FeedException {
+    private BuildStatus getBuildStatus(URL url, String user, String password) throws IOException, FeedException {
         // by default we assume the build is broken!
         BuildStatus status = BuildStatus.BUILD_UNSTABLE;
 
         Reader reader = null;
         try {
-            reader = new InputStreamReader(url.openStream());
+            URLConnection con = url.openConnection();
+            if(StringUtils.isNotBlank(user) && StringUtils.isNotBlank(password)) {
+                con.setRequestProperty(
+                        "Authorization",
+                        "Basic " + user + ":" + password);
+            }
+            con.connect();
+            reader = new InputStreamReader(con.getInputStream());
+
             final SyndFeedInput input = new SyndFeedInput();
             final SyndFeed feed = input.build(reader);
 
@@ -75,6 +98,10 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
                 String statusString = title.substring(beginIndex, endIndex);
 
                 status = mapBuildStatusString(statusString);
+
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Status for {}: {}", url.toExternalForm(), status.toString());
+                }
             }
             return status;
         } finally {
