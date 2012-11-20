@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import sun.misc.BASE64Encoder;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -69,7 +70,7 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
     //----  I n t e r n a l  ----//
 
 
-    private BuildStatus getBuildStatus(URL url, String user, String password) throws IOException, FeedException {
+    BuildStatus getBuildStatus(URL url, String user, String password) throws IOException, FeedException {
         // by default we assume the build is broken!
         BuildStatus status = BuildStatus.BUILD_UNSTABLE;
 
@@ -79,7 +80,7 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
             if(StringUtils.isNotBlank(user) && StringUtils.isNotBlank(password)) {
                 con.setRequestProperty(
                         "Authorization",
-                        "Basic " + user + ":" + password);
+                        "Basic " + new BASE64Encoder().encode((user + ":" + password).getBytes()));
             }
             con.connect();
             reader = new InputStreamReader(con.getInputStream());
@@ -114,7 +115,7 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
      * @param statusString
      * @return
      */
-    private BuildStatus mapBuildStatusString(String statusString) {
+    BuildStatus mapBuildStatusString(String statusString) {
         if (StringUtils.isNotEmpty(statusString)) {
             BuildStatus result = configuration.getFeedReader().mapBuildStatus(statusString);
             if (result != null) {
