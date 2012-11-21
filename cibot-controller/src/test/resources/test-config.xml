@@ -1,6 +1,6 @@
 <cibotConfig>
 
-    <thumbi>
+    <thumbi enabled="false">
         <connectionUri>usb://NXT_A</connectionUri>
         <timeout>10000</timeout>
     </thumbi>
@@ -23,8 +23,6 @@
         <statusMapping status="BUILD_UNSTABLE">
             <text>tests failures</text>
         </statusMapping>
-
-
     </feedReader>
 
 </cibotConfig>

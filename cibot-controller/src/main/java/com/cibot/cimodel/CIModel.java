@@ -20,7 +20,7 @@ public class CIModel extends Observable {
     private static final Logger LOG = LoggerFactory.getLogger(CIModel.class);
 
 
-    private BuildStatus currentStatus = BuildStatus.BUILD_FAILED;
+    private BuildStatus currentStatus = BuildStatus.UNKNOWN;
 
 
     /**

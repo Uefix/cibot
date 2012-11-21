@@ -52,6 +52,8 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
     private ImageIcon thumbDownIcon;
 
+    private ImageIcon jenkinsUnavailableIcon;
+
     private ImageIcon blueToothIcon;
 
     private ImageIcon usbIcon;
@@ -138,6 +140,9 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
         URL usbUrl = classLoader.getResource("images/usb.png");
         usbIcon = new ImageIcon(usbUrl);
+
+        URL jenkinsUnavailableIconUrl = classLoader.getResource("images/jenkins_unavailable.png");
+        jenkinsUnavailableIcon = new ImageIcon(jenkinsUnavailableIconUrl);
     }
 
 
@@ -197,6 +202,11 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
                 LOG.info("Build ok");
                 break;
 
+            case UNKNOWN:
+                thumbLabel.setIcon(jenkinsUnavailableIcon);
+                LOG.info("Build status unknown");
+                break;
+
             default:
                 thumbLabel.setIcon(thumbDownIcon);
                 LOG.info("Build NOT ok");
@@ -237,6 +247,10 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
             CIBotUtil.sleep(1500);
             window.showConnectedIcon(ThumbiConnectionType.USB);
+
+            CIBotUtil.sleep(1500);
+            window.showConnectedIcon(null);
+            window.ciModel.setCurrentStatus(BuildStatus.UNKNOWN);
 
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);

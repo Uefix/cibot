@@ -4,7 +4,7 @@
 
 	<groupId>cibot-main</groupId>
 	<artifactId>cibot-main</artifactId>
-	<version>1.2</version>
+	<version>1.2.2</version>
 	<packaging>pom</packaging>
 	<name>ciBOT</name>
 

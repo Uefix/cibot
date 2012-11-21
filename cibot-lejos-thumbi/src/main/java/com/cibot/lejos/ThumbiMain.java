@@ -23,8 +23,12 @@ public final class ThumbiMain {
 
     private ThumbiRotator rotator = new ThumbiRotator(Motor.A, 900, 4500);
 
+    private ThumbiRotator rotatorUnknownStatus = new ThumbiRotator(Motor.A, 900, 2250);
+
 
     private boolean failed = false;
+
+    private boolean unknown = false;
 
     private int counter = 0;
 
@@ -33,7 +37,7 @@ public final class ThumbiMain {
 
 
     public void start() {
-        ThumbiLogger.log("ciBOT Thumbi 1.0");
+        ThumbiLogger.log("ciBOT Thumbi 1.2.2");
 
         initRightButton();
         initLeftButton();

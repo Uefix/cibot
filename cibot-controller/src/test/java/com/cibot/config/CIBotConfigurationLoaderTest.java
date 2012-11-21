@@ -37,6 +37,7 @@ public class CIBotConfigurationLoaderTest {
         CIBotConfiguration expected = new CIBotConfiguration();
         expected.getThumbi().setConnectionUri("usb://NXT_A");
         expected.getThumbi().setTimeout(10000L);
+        expected.getThumbi().setEnabled(false);
 
         CIBotConfiguration.FeedReader expectedFeedReader = expected.getFeedReader();
         expectedFeedReader.setLoginsList(Lists.newArrayList(new CIBotConfiguration.Login("jenkins", "develop", "pw123")));

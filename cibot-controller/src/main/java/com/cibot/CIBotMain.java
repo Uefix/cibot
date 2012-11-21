@@ -1,5 +1,6 @@
 package com.cibot;
 
+import com.cibot.config.CIBotConfiguration;
 import com.cibot.config.CIBotConfigurationLoader;
 import com.cibot.gui.CIBotFrame;
 import com.cibot.thumbi.ThumbiConnector;
@@ -35,9 +36,12 @@ public final class CIBotMain {
 
         CIBotFrame cibotFrame = ctx.getBean(CIBotFrame.class);
 
-        ThumbiConnector thumbiConnector = ctx.getBean(ThumbiConnector.class);
-        thumbiConnector.setConnectionListener(cibotFrame);
-        thumbiConnector.start();
+        CIBotConfiguration configuration = ctx.getBean(CIBotConfiguration.class);
+        if (configuration.getThumbi().isEnabled()) {
+            ThumbiConnector thumbiConnector = ctx.getBean(ThumbiConnector.class);
+            thumbiConnector.setConnectionListener(cibotFrame);
+            thumbiConnector.start();
+        }
     }
 
 

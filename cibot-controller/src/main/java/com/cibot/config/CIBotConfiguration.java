@@ -55,6 +55,8 @@ public class CIBotConfiguration {
         @XmlElement
         private long timeout;
 
+        @XmlAttribute
+        private boolean enabled = true;
 
         public String getConnectionUri() {
             return connectionUri;
@@ -74,15 +76,24 @@ public class CIBotConfiguration {
         }
 
 
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            Thumbi that = (Thumbi) o;
+            Thumbi thumbi = (Thumbi) o;
 
-            if (timeout != that.timeout) return false;
-            if (connectionUri != null ? !connectionUri.equals(that.connectionUri) : that.connectionUri != null)
+            if (enabled != thumbi.enabled) return false;
+            if (timeout != thumbi.timeout) return false;
+            if (connectionUri != null ? !connectionUri.equals(thumbi.connectionUri) : thumbi.connectionUri != null)
                 return false;
 
             return true;
@@ -92,14 +103,17 @@ public class CIBotConfiguration {
         public int hashCode() {
             int result = connectionUri != null ? connectionUri.hashCode() : 0;
             result = 31 * result + (int) (timeout ^ (timeout >>> 32));
+            result = 31 * result + (enabled ? 1 : 0);
             return result;
         }
+
 
         @Override
         public String toString() {
             return "Thumbi{" +
                     "connectionUri='" + connectionUri + '\'' +
                     ", timeout=" + timeout +
+                    ", enabled=" + enabled +
                     '}';
         }
     }

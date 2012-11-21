@@ -41,10 +41,9 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
     public BuildStatus getCurrentBuildStatus() throws RuntimeException {
         CIBotConfiguration.Feed feed = null;
         try {
-            boolean isUnstable = false;
+            BuildStatus result = BuildStatus.BUILD_OK;
             Iterator<CIBotConfiguration.Feed> it = configuration.getFeedReader().getFeeds().iterator();
             while (it.hasNext()) {
-
                 feed = it.next();
 
                 String user = null;
@@ -56,13 +55,18 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
                     password = loginConfig.getPassword();
                 }
                 BuildStatus statusForUrl = getBuildStatus(feed.getUrl(), user, password);
-                if (statusForUrl != BuildStatus.BUILD_OK && !isUnstable) {
-                    isUnstable = true;
+                if (result != BuildStatus.UNKNOWN) {
+                    if (statusForUrl == BuildStatus.UNKNOWN) {
+                        result = BuildStatus.UNKNOWN;
+                    } else if (statusForUrl != BuildStatus.BUILD_OK) {
+                        result = BuildStatus.BUILD_FAILED;
+                    }
                 }
             }
-            return isUnstable ? BuildStatus.BUILD_UNSTABLE : BuildStatus.BUILD_OK;
+            return result;
         } catch (Exception e) {
-            throw new RuntimeException((new StringBuilder()).append("Error while getting the current build status for ").append(feed).toString(), e);
+            LOG.error("Error while getting the current build status for " + feed, e);
+            return BuildStatus.UNKNOWN;
         }
     }
 
@@ -105,9 +109,13 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
                 }
             }
             return status;
+        } catch (Exception e) {
+            LOG.debug("{} while reading feed {}", e.getClass().getSimpleName(), url.toExternalForm());
+            status = BuildStatus.UNKNOWN;
         } finally {
             IOUtils.closeQuietly(reader);
         }
+        return status;
     }
 
 
@@ -122,6 +130,6 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
                 return result;
             }
         }
-        return BuildStatus.BUILD_FAILED;
+        return BuildStatus.UNKNOWN;
     }
 }
