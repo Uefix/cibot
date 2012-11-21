@@ -44,15 +44,12 @@ public class JenkinsBuildStatusCheckerTest {
         checker  = Mockito.spy(new JenkinsBuildStatusChecker());
         mockMapBuildStatusString(BuildStatus.BUILD_OK);
 
-
-
-
-
         url = System.getProperty("url");
         user = System.getProperty("user");
         password = System.getProperty("password");
 
         mockConfiguration_getLogin();
+        checker.setConfiguration(configuration);
     }
 
 
