@@ -1,22 +1,29 @@
 package com.cibot.feedreader;
 
 import com.cibot.cimodel.BuildStatus;
+import com.cibot.config.CIBotConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 /**
  * @author Uefix
  */
+@RunWith(MockitoJUnitRunner.class)
 public class JenkinsBuildStatusCheckerTest {
 
 
@@ -24,6 +31,9 @@ public class JenkinsBuildStatusCheckerTest {
 
 
     private JenkinsBuildStatusChecker checker;
+
+    @Mock
+    private CIBotConfiguration configuration;
 
     private String url;
     private String user;
@@ -34,9 +44,15 @@ public class JenkinsBuildStatusCheckerTest {
         checker  = Mockito.spy(new JenkinsBuildStatusChecker());
         mockMapBuildStatusString(BuildStatus.BUILD_OK);
 
+
+
+
+
         url = System.getProperty("url");
         user = System.getProperty("user");
         password = System.getProperty("password");
+
+        mockConfiguration_getLogin();
     }
 
 
@@ -48,7 +64,10 @@ public class JenkinsBuildStatusCheckerTest {
             return;
         }
 
-        BuildStatus result = checker.getBuildStatus(new URL(url), user, password);
+        CIBotConfiguration.Feed feed = new CIBotConfiguration.Feed();
+        feed.setUrl(new URL(url));
+
+        BuildStatus result = checker.getBuildStatus(feed);
         assertEquals(BuildStatus.BUILD_OK, result);
     }
 
@@ -57,6 +76,12 @@ public class JenkinsBuildStatusCheckerTest {
 
     private void mockMapBuildStatusString(BuildStatus result) {
         when(checker.mapBuildStatusString(anyString())).thenReturn(result);
+    }
+
+
+    private void mockConfiguration_getLogin() {
+        CIBotConfiguration.Login loginConfig = new CIBotConfiguration.Login("test", user, password);
+        when(configuration.getLogin(any(CIBotConfiguration.Feed.class))).thenReturn(loginConfig);
     }
 
 

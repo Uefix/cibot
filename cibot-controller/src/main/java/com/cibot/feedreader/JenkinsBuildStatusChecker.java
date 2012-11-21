@@ -45,16 +45,7 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
             Iterator<CIBotConfiguration.Feed> it = configuration.getFeedReader().getFeeds().iterator();
             while (it.hasNext()) {
                 feed = it.next();
-
-                String user = null;
-                String password = null;
-
-                if (feed.hasLogin()) {
-                    CIBotConfiguration.Login loginConfig = configuration.getLogin(feed);
-                    user = loginConfig.getUser();
-                    password = loginConfig.getPassword();
-                }
-                BuildStatus statusForUrl = getBuildStatus(feed.getUrl(), user, password);
+                BuildStatus statusForUrl = getBuildStatus(feed);
                 if (result != BuildStatus.UNKNOWN) {
                     if (statusForUrl == BuildStatus.UNKNOWN) {
                         result = BuildStatus.UNKNOWN;
@@ -74,26 +65,22 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
     //----  I n t e r n a l  ----//
 
 
-    BuildStatus getBuildStatus(URL url, String user, String password) throws IOException, FeedException {
+    BuildStatus getBuildStatus(CIBotConfiguration.Feed feed) throws IOException, FeedException {
         // by default we assume the build is broken!
         BuildStatus status = BuildStatus.BUILD_UNSTABLE;
 
         Reader reader = null;
         try {
-            URLConnection con = url.openConnection();
-            if(StringUtils.isNotBlank(user) && StringUtils.isNotBlank(password)) {
-                con.setRequestProperty(
-                        "Authorization",
-                        "Basic " + new BASE64Encoder().encode((user + ":" + password).getBytes()));
-            }
+
+            URLConnection con = initializedConnection(feed);
             con.connect();
             reader = new InputStreamReader(con.getInputStream());
 
             final SyndFeedInput input = new SyndFeedInput();
-            final SyndFeed feed = input.build(reader);
+            final SyndFeed syncFeed = input.build(reader);
 
             @SuppressWarnings("unchecked")
-            final List<SyndEntry> feedEntries = feed.getEntries();
+            final List<SyndEntry> feedEntries = syncFeed.getEntries();
             if (feedEntries.size() > 0) {
                 final String title = feedEntries.iterator().next().getTitle();
 
@@ -105,12 +92,12 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
                 status = mapBuildStatusString(statusString);
 
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Status for {}: {}", url.toExternalForm(), status.toString());
+                    LOG.debug("Status for {}: {}", feed.getJobName(), status.toString());
                 }
             }
             return status;
         } catch (Exception e) {
-            LOG.debug("{} while reading feed {}", e.getClass().getSimpleName(), url.toExternalForm());
+            LOG.error("{} while reading feed for {}", e.getClass().getSimpleName(), feed.getJobName());
             status = BuildStatus.UNKNOWN;
         } finally {
             IOUtils.closeQuietly(reader);
@@ -119,10 +106,23 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
     }
 
 
+    private URLConnection initializedConnection(CIBotConfiguration.Feed feed) throws IOException {
+        URLConnection con = feed.getUrl().openConnection();
+        if (feed.hasLogin()) {
+            CIBotConfiguration.Login loginConfig = configuration.getLogin(feed);
+            String encodedAuth = new BASE64Encoder().encode(
+                    (loginConfig.getUser() + ":" + loginConfig.getPassword()).getBytes());
+
+            con.setRequestProperty("Authorization", "Basic " + encodedAuth);
+        }
+        return con;
+    }
+
+
     /**
-     * @param statusString
-     * @return
-     */
+      * @param statusString
+      * @return
+      */
     BuildStatus mapBuildStatusString(String statusString) {
         if (StringUtils.isNotEmpty(statusString)) {
             BuildStatus result = configuration.getFeedReader().mapBuildStatus(statusString);
@@ -132,4 +132,10 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
         }
         return BuildStatus.UNKNOWN;
     }
+
+
+    void setConfiguration(CIBotConfiguration configuration) {
+        this.configuration = configuration;
+    }
+
 }
