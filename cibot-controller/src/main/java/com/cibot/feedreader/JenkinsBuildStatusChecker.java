@@ -38,40 +38,10 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
 
 
     @Override
-    public BuildStatus getCurrentBuildStatus() throws RuntimeException {
-        CIBotConfiguration.Feed feed = null;
-        try {
-            BuildStatus result = BuildStatus.BUILD_OK;
-            Iterator<CIBotConfiguration.Feed> it = configuration.getFeedReader().getFeeds().iterator();
-            while (it.hasNext()) {
-                feed = it.next();
-                BuildStatus statusForUrl = getBuildStatus(feed);
-                if (result != BuildStatus.UNKNOWN) {
-                    if (statusForUrl == BuildStatus.UNKNOWN) {
-                        result = BuildStatus.UNKNOWN;
-                    } else if (statusForUrl != BuildStatus.BUILD_OK) {
-                        result = BuildStatus.BUILD_FAILED;
-                    }
-                }
-            }
-            return result;
-        } catch (Exception e) {
-            LOG.error("Error while getting the current build status for " + feed, e);
-            return BuildStatus.UNKNOWN;
-        }
-    }
-
-
-    //----  I n t e r n a l  ----//
-
-
-    BuildStatus getBuildStatus(CIBotConfiguration.Feed feed) throws IOException, FeedException {
-        // by default we assume the build is broken!
-        BuildStatus status = BuildStatus.BUILD_UNSTABLE;
-
+    public BuildStatus getBuildStatus(CIBotConfiguration.Feed feed) {
+        BuildStatus status = BuildStatus.UNKNOWN;
         Reader reader = null;
         try {
-
             URLConnection con = initializedConnection(feed);
             con.connect();
             reader = new InputStreamReader(con.getInputStream());
@@ -137,5 +107,4 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
     void setConfiguration(CIBotConfiguration configuration) {
         this.configuration = configuration;
     }
-
 }

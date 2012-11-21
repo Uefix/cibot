@@ -1,5 +1,6 @@
 package com.cibot;
 
+import com.cibot.config.CIBotConfiguration;
 import com.cibot.feedreader.BuildStatusChecker;
 import com.cibot.cimodel.BuildStatus;
 import com.cibot.cimodel.CIModel;
@@ -27,6 +28,9 @@ public class CIBotController {
     @Autowired
     private BuildStatusChecker buildStatusChecker;
 
+    @Autowired
+    private CIBotConfiguration configuration;
+
 
 
     public void start() {
@@ -50,15 +54,22 @@ public class CIBotController {
         while (true) {
             CIBotUtil.sleep(SLEEP_TIME);
             try {
-                BuildStatus status = buildStatusChecker.getCurrentBuildStatus();
-
-                LOG.info("Current build status: {}", status);
-
                 synchronized (ciModel) {
-                    ciModel.setCurrentStatus(status);
+                    ciModel.resetStatusMap();
+                    for (CIBotConfiguration.Feed feed : configuration.getFeedReader().getFeeds()) {
+                        BuildStatus status = buildStatusChecker.getBuildStatus(feed);
+                        ciModel.setStatusForJob(feed.getJobName(), status);
+                    }
+                    ciModel.calculateOverallStatus();
                 }
+                LOG.info("Current build status: {}", ciModel.getOverallStatus());
             } catch (RuntimeException e) {
                 LOG.error("Exception while checking status: " + e.getMessage(), e);
+                synchronized (ciModel) {
+                    ciModel.setOverallStatus(BuildStatus.UNKNOWN);
+                }
+            } finally {
+                ciModel.fireUpdateEvent();
             }
         }
     }

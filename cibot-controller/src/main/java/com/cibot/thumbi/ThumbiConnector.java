@@ -9,7 +9,6 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.io.DataInputStream;
@@ -133,7 +132,7 @@ public class ThumbiConnector implements NXTCommLogListener  {
 
                 if ("get_status".equals(clientMessage)) {
                     synchronized (ciModel) {
-                        outputStream.writeBytes(ciModel.getCurrentStatus().toString() + "\n");
+                        outputStream.writeBytes(ciModel.getOverallStatus().toString() + "\n");
                         outputStream.flush();
                     }
                 }

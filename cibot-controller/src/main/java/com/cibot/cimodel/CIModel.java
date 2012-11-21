@@ -1,11 +1,14 @@
 package com.cibot.cimodel;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.Observable;
+import java.util.Set;
 
 /**
  * This cimodel contains the current build status observed by all CIBots.
@@ -20,33 +23,71 @@ public class CIModel extends Observable {
     private static final Logger LOG = LoggerFactory.getLogger(CIModel.class);
 
 
-    private BuildStatus currentStatus = BuildStatus.UNKNOWN;
+    private BuildStatus overallStatus = BuildStatus.UNKNOWN;
+
+
+    private Map<String,BuildStatus> jobStatusMap = Maps.newHashMap();
 
 
     /**
-     * Gets the currentStatus
-     * 
-     * @return the currentStatus
+     * Gets the overallStatus
+     *
+     * @return the overallStatus
      */
-    public BuildStatus getCurrentStatus() {
-        return currentStatus;
+    public BuildStatus getOverallStatus() {
+        return overallStatus;
     }
 
     /**
-     * Sets the currentStatus
-     * 
-     * @param currentStatus the currentStatus to set
+     * Sets the overallStatus
+     *
+     * @param overallStatus the overallStatus to set
      */
-    public void setCurrentStatus(BuildStatus currentStatus) {
-        Preconditions.checkArgument(currentStatus != null, "Given status must not be null");
+    public void setOverallStatus(BuildStatus overallStatus) {
+        Preconditions.checkArgument(overallStatus != null, "Given status must not be null");
+        this.overallStatus = overallStatus;
+    }
 
-        BuildStatus oldStatus = this.currentStatus;
-        this.currentStatus = currentStatus;
 
-        if (!oldStatus.equals(currentStatus)) {
-            LOG.info("build status has changed from {} to {}", oldStatus, currentStatus);
-            setChanged();
-            notifyObservers();
+
+    public void resetStatusMap() {
+        jobStatusMap.clear();
+    }
+
+    public void setStatusForJob(String jobKey, BuildStatus status) {
+        jobStatusMap.put(jobKey, status);
+    }
+
+    public BuildStatus getStatusForJob(String jobKey) {
+        return jobStatusMap.get(jobKey);
+    }
+
+    public Set<String> getJobKeys() {
+        return jobStatusMap.keySet();
+    }
+
+
+    public void calculateOverallStatus() {
+        boolean failed = false;
+        for (String jobName : jobStatusMap.keySet()) {
+            BuildStatus status = jobStatusMap.get(jobName);
+            switch (status) {
+                case UNKNOWN:
+                    setOverallStatus(status);
+                    return;
+
+                case BUILD_FAILED:
+                case BUILD_UNSTABLE:
+                    failed = true;
+            }
+
         }
+        setOverallStatus(failed ? BuildStatus.BUILD_FAILED : BuildStatus.BUILD_OK);
+    }
+
+
+    public void fireUpdateEvent() {
+        setChanged();
+        notifyObservers();
     }
 }

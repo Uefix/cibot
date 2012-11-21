@@ -196,7 +196,7 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
 
     private void updateBuildStatus(CIModel model) {
-        switch (model.getCurrentStatus()) {
+        switch (model.getOverallStatus()) {
             case BUILD_OK:
                 thumbLabel.setIcon(thumbUpIcon);
                 LOG.info("Build ok");
@@ -241,7 +241,7 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
             CIBotUtil.sleep(1500);
             window.showConnectedIcon(ThumbiConnectionType.BLUETOOTH);
 
-            window.ciModel.setCurrentStatus(BuildStatus.BUILD_OK);
+            window.ciModel.setOverallStatus(BuildStatus.BUILD_OK);
             CIBotUtil.sleep(1500);
             window.showConnectedIcon(null);
 
@@ -250,7 +250,7 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
             CIBotUtil.sleep(1500);
             window.showConnectedIcon(null);
-            window.ciModel.setCurrentStatus(BuildStatus.UNKNOWN);
+            window.ciModel.setOverallStatus(BuildStatus.UNKNOWN);
 
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
