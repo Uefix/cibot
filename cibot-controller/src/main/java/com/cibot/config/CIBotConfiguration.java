@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Uefix
@@ -20,6 +22,10 @@ import java.util.Map;
 @XmlRootElement(name = "cibotConfig")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CIBotConfiguration {
+
+
+    private static Pattern JOB_BY_FEED_URL_PATTERN = Pattern.compile("^.*/(.*)/rssAll$");
+
 
     @XmlElement
     private Thumbi thumbi = new Thumbi();
@@ -206,6 +212,9 @@ public class CIBotConfiguration {
         @XmlAttribute
         private String login;
 
+        @XmlAttribute
+        private String jobName;
+
         @XmlValue
         private URL url;
 
@@ -215,8 +224,33 @@ public class CIBotConfiguration {
         public Feed(URL url, String login) {
             this.url = url;
             this.login = login;
-
         }
+
+        public void setJobName(String jobName) {
+            this.jobName = jobName;
+        }
+
+        public String getJobName() {
+            if (jobName == null) {
+                return parseJobName();
+            }
+            return jobName;
+        }
+
+        private String parseJobName() {
+            if (url != null) {
+                try {
+                    Matcher matcher = JOB_BY_FEED_URL_PATTERN.matcher(url.toExternalForm());
+                    if (matcher.matches()) {
+                        return matcher.group(1);
+                    }
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
+            return null;
+        }
+
 
         public String getLogin() {
             return login;
@@ -246,6 +280,7 @@ public class CIBotConfiguration {
 
             Feed feed = (Feed) o;
 
+            if (jobName != null ? !jobName.equals(feed.jobName) : feed.jobName != null) return false;
             if (login != null ? !login.equals(feed.login) : feed.login != null) return false;
             if (url != null ? !url.equals(feed.url) : feed.url != null) return false;
 
@@ -255,6 +290,7 @@ public class CIBotConfiguration {
         @Override
         public int hashCode() {
             int result = login != null ? login.hashCode() : 0;
+            result = 31 * result + (jobName != null ? jobName.hashCode() : 0);
             result = 31 * result + (url != null ? url.hashCode() : 0);
             return result;
         }
@@ -263,6 +299,7 @@ public class CIBotConfiguration {
         public String toString() {
             return "Feed{" +
                     "login='" + login + '\'' +
+                    ", jobName='" + jobName + '\'' +
                     ", url=" + url +
                     '}';
         }
