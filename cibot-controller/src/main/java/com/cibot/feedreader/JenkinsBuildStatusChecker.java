@@ -4,7 +4,6 @@ import com.cibot.cimodel.BuildStatus;
 import com.cibot.config.CIBotConfiguration;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -16,9 +15,7 @@ import sun.misc.BASE64Encoder;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URL;
 import java.net.URLConnection;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -60,6 +57,10 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
                 String statusString = title.substring(beginIndex, endIndex);
 
                 status = mapBuildStatusString(statusString);
+                if (status == null) {
+                    LOG.error("Unmapped statusString: {}", statusString);
+                    status = BuildStatus.BUILD_FAILED;
+                }
 
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Status for {}: {}", feed.getJobName(), status.toString());
@@ -100,7 +101,7 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
                 return result;
             }
         }
-        return BuildStatus.UNKNOWN;
+        return null;
     }
 
 

@@ -11,24 +11,34 @@
             <feed>http://JENKINS_HOST:8080/jenkins/job/NAME_OF_THE_JOB2/rssAll</feed>
         </feeds>
 
+
         <statusMapping status="BUILD_OK">
+            <text>aborted</text>
             <text>stabil</text>
             <text>wieder normal</text>
             <text>stable</text>
             <text>back to normal</text>
         </statusMapping>
 
-        <statusMapping status="BUILD_UNSTABLE">
+        <statusMapping status="BUILD_FAILED">
             <text>tests neu fehlgeschlagen</text>
             <text>tests schlagen immer noch fehl</text>
             <text>fehlgeschlagene tests</text>
-            <text>defekt seit diesem build</text>
 
             <text>tests are still failing</text>
             <text>TODO neu fehlgeschlagen auf englisch</text>
             <text>tests failures</text>
-            <text>broken since this build</text>
         </statusMapping>
+
+
+        <statusMapping status="BUILD_UNSTABLE">
+            <text>abgebrochen</text>
+            <text>defekt seit diesem build.</text>
+
+            <text>aborted</text>
+            <text>broken since this build.</text>
+        </statusMapping>
+
 
     </feedReader>
 

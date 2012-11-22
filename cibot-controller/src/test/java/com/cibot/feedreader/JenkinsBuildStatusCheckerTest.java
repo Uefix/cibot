@@ -6,7 +6,6 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -63,6 +62,7 @@ public class JenkinsBuildStatusCheckerTest {
 
         CIBotConfiguration.Feed feed = new CIBotConfiguration.Feed();
         feed.setUrl(new URL(url));
+        feed.setLogin("test");
 
         BuildStatus result = checker.getBuildStatus(feed);
         assertEquals(BuildStatus.BUILD_OK, result);
