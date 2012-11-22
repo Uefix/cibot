@@ -28,4 +28,11 @@ public class CIBotConfigurationTest {
     public void feedGetJobName_noJobNameConfigured_returnsJobnameDefinedByUrl() {
         assertEquals("NAME_OF_THE_JOB1", feed.getJobName());
     }
+
+    @Test
+    public void feedGetJobName_jobNameConfigured_returnsExpectedJobName() {
+        feed.setJobName("theJob");
+
+        assertEquals("theJob", feed.getJobName());
+    }
 }

@@ -11,7 +11,7 @@
         </logins>
 
         <feeds>
-            <feed>http://JENKINS_HOST:8080/jenkins/job/NAME_OF_THE_JOB1/rssAll</feed>
+            <feed jobName="theJob">http://JENKINS_HOST:8080/jenkins/job/NAME_OF_THE_JOB1/rssAll</feed>
             <feed login="jenkins">http://JENKINS_HOST:8080/jenkins/job/NAME_OF_THE_JOB2/rssAll</feed>
         </feeds>
 
