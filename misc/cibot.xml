@@ -1,6 +1,6 @@
 <cibotConfig>
 
-    <thumbi>
+    <thumbi enabled="true">
         <connectionUri>usb://NXT_A</connectionUri>
         <timeout>10000</timeout>
     </thumbi>
@@ -13,6 +13,7 @@
 
 
         <statusMapping status="BUILD_OK">
+            <text>abgebrochen</text>
             <text>aborted</text>
             <text>stabil</text>
             <text>wieder normal</text>
@@ -24,19 +25,19 @@
             <text>tests neu fehlgeschlagen</text>
             <text>tests schlagen immer noch fehl</text>
             <text>fehlgeschlagene tests</text>
-
+            <text>defekt seit diesem build.</text>
+            
             <text>tests are still failing</text>
             <text>TODO neu fehlgeschlagen auf englisch</text>
             <text>tests failures</text>
+            <text>broken since this build.</text>
         </statusMapping>
 
 
         <statusMapping status="BUILD_UNSTABLE">
+            <!--
             <text>abgebrochen</text>
-            <text>defekt seit diesem build.</text>
-
-            <text>aborted</text>
-            <text>broken since this build.</text>
+            <text>aborted</text> -->
         </statusMapping>
 
 

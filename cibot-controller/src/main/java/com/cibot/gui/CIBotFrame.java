@@ -343,13 +343,11 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
     //---- Hauptstrecke for tests ----//
 
     public static void main(String[] args) {
-
         try {
             CIBotFrame window = new CIBotFrame();
             window.ciModel = new CIModel();
             window.initialize();
             CIBotUtil.sleep(1500);
-
 
             window.ciModel.setStatusForJob("AuthE BS-all", BuildStatus.BUILD_FAILED);
             window.ciModel.setStatusForJob("AuthE Nightly", BuildStatus.BUILD_UNSTABLE);
@@ -371,7 +369,6 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
             CIBotUtil.sleep(1500);
             window.showConnectedIcon(ThumbiConnectionType.USB);
-
 
             CIBotUtil.sleep(1500);
             window.showConnectedIcon(null);

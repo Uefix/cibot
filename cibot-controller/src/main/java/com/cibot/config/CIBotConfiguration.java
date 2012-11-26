@@ -62,7 +62,7 @@ public class CIBotConfiguration {
         private long timeout;
 
         @XmlAttribute
-        private boolean enabled = true;
+        private boolean enabled = false;
 
         public String getConnectionUri() {
             return connectionUri;
