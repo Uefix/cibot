@@ -8,6 +8,9 @@ import com.cibot.util.CIBotUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.batik.swing.JSVGCanvas;
+import org.apache.batik.swing.svg.SVGDocumentLoaderAdapter;
+import org.apache.batik.swing.svg.SVGDocumentLoaderEvent;
+import org.apache.batik.swing.svg.SVGDocumentLoaderListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,31 +43,20 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
     private static final Font JOB_NAME_FONT_ITALIC = new Font("Arial", Font.ITALIC | Font.BOLD, 14);
 
-    private static final Color LIGHT_RED = new Color(255, 55, 55);
-
-    private static final Color LIGHT_GREEN = new Color(55, 255, 55);
 
 
     @Autowired
     private CIModel ciModel;
 
-    private JLabel thumbLabel;
-
-
     private JLabel connectedLabel;
 
-    private ImageIcon thumbUpIcon;
-
-    private ImageIcon thumbDownIcon;
-
-    private ImageIcon jenkinsUnavailableIcon;
 
     private ImageIcon blueToothIcon;
 
     private ImageIcon usbIcon;
 
-
     private ImageIcon logoIcon;
+
 
     private JPanel glassPanel;
 
@@ -72,16 +64,29 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
     private JPanel jobOverviewPanel;
 
-    private JSVGCanvas svgCanvas;
+
+    private JSVGCanvas thumbUpCanvas;
+
+    private JSVGCanvas thumbDownCanvas;
+
+    private JSVGCanvas jenkinsUnavailableCanvas;
+
+    private SVGDocumentLoaderListener svgDocumentLoaderListener;
 
 
     public void initialize() {
         Preconditions.checkState(ciModel != null, "Model not set");
 
+        svgDocumentLoaderListener = new SVGDocumentLoaderAdapter() {
+            @Override
+            public void documentLoadingCompleted(SVGDocumentLoaderEvent svgDocumentLoaderEvent) {
+                svgLoadedCallback();
+            }
+        };
+
         loadIcons();
-        thumbLabel = new JLabel(jenkinsUnavailableIcon);
-        thumbLabel.setMinimumSize(new Dimension(400, 435));
-        thumbLabel.setPreferredSize(thumbLabel.getMinimumSize());
+
+        initSVGCanvases();
         initConnectedLabel();
 
         setLayout(new GridBagLayout());
@@ -118,8 +123,6 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
     public void update(Observable obs, Object arg) {
         CIModel model = (CIModel) obs;
         updateBuildStatus(model);
-        thumbLabel.validate();
-        thumbLabel.repaint();
     }
 
 
@@ -142,23 +145,32 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
     private void loadIcons() {
         final ClassLoader classLoader = getClass().getClassLoader();
 
-        URL thumbUpUrl = classLoader.getResource("images/thumbup.jpg");
-        thumbUpIcon = new ImageIcon(thumbUpUrl);
-
-        URL thumbDownUrl = classLoader.getResource("images/thumbdown.jpg");
-        thumbDownIcon = new ImageIcon(thumbDownUrl);
-
         URL blueToothUrl = classLoader.getResource("images/bluetooth.png");
         blueToothIcon = new ImageIcon(blueToothUrl);
 
         URL usbUrl = classLoader.getResource("images/usb.png");
         usbIcon = new ImageIcon(usbUrl);
 
-        URL jenkinsUnavailableIconUrl = classLoader.getResource("images/jenkins_unavailable.png");
-        jenkinsUnavailableIcon = new ImageIcon(jenkinsUnavailableIconUrl);
-
         URL logoIconUrl = classLoader.getResource("images/logo.png");
         logoIcon = new ImageIcon(logoIconUrl);
+    }
+
+
+    private void initSVGCanvases() {
+        thumbUpCanvas = createSVGCanvas("images/thumbup.svg");
+        thumbDownCanvas = createSVGCanvas("images/thumbdown.svg");
+        jenkinsUnavailableCanvas = createSVGCanvas("images/jenkins_unavailable.svg");
+    }
+
+
+    private JSVGCanvas createSVGCanvas(String resource) {
+        final ClassLoader classLoader = getClass().getClassLoader();
+
+        URL svgUrl = classLoader.getResource(resource);
+        JSVGCanvas svgCanvas = new JSVGCanvas();
+        svgCanvas.setURI(svgUrl.toString());
+        svgCanvas.addSVGDocumentLoaderListener(svgDocumentLoaderListener);
+        return svgCanvas;
     }
 
 
@@ -184,22 +196,33 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
         statusPanel.setBackground(Color.WHITE);
         statusPanel.setLayout(new GridBagLayout());
 
-        GridBagConstraints con =
-                new GridBagConstraints(1, 1, 1, 1, 1.0d, 1.0d,
-                        GridBagConstraints.CENTER, GridBagConstraints.NONE, ZERO_INSETS, 0, 0);
+        setStatusCanvas(jenkinsUnavailableCanvas);
 
-        statusPanel.add(thumbLabel, con);
-
-        con = new GridBagConstraints(1, 1, 1, 1, 1.0d, 1.0d,
+        GridBagConstraints con = new GridBagConstraints(1, 1, 1, 1, 1.0d, 1.0d,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH, ZERO_INSETS, 0, 0);
 
         getContentPane().add(statusPanel, con);
+
+
+    }
+
+
+    private void setStatusCanvas(JSVGCanvas canvas) {
+        GridBagConstraints con =
+                new GridBagConstraints(1, 1, 1, 1, 1.0d, 1.0d,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH, ZERO_INSETS, 0, 0);
+
+        statusPanel.removeAll();
+        statusPanel.add(canvas, con);
+        statusPanel.invalidate();
+        statusPanel.repaint();
+        canvas.repaint();
     }
 
 
     private void initJobOverviewPanel() {
         jobOverviewPanel = new JPanel();
-        jobOverviewPanel.setBackground(Color.WHITE);
+        jobOverviewPanel.setOpaque(false);
         jobOverviewPanel.setLayout(new GridBagLayout());
 
         addJobLabel("Awaiting CI status...", null);
@@ -271,7 +294,9 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
                     new GridBagConstraints(1, jobOverviewPanel.getComponentCount() + 1, 1, 1, 1.0d, 1.0d,
                             GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets(1, 1, 1, 0), 0, 0);
 
-        jobOverviewPanel.add(new JLabel(), con);
+        JLabel dummyLabel = new JLabel();
+        dummyLabel.setOpaque(false);
+        jobOverviewPanel.add(dummyLabel, con);
     }
 
 
@@ -300,18 +325,15 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
         synchronized (model) {
             switch (model.getOverallStatus()) {
                 case BUILD_OK:
-                    thumbLabel.setIcon(thumbUpIcon);
-                    LOG.info("Build ok");
+                    setStatusCanvas(thumbUpCanvas);
                     break;
 
                 case UNKNOWN:
-                    thumbLabel.setIcon(jenkinsUnavailableIcon);
-                    LOG.info("Build status unknown");
+                    setStatusCanvas(jenkinsUnavailableCanvas);
                     break;
 
                 default:
-                    thumbLabel.setIcon(thumbDownIcon);
-                    LOG.info("Build NOT ok");
+                    setStatusCanvas(thumbDownCanvas);
                     break;
             }
 
@@ -344,6 +366,11 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
 
 
+    void svgLoadedCallback() {
+        statusPanel.invalidate();
+        statusPanel.repaint();
+    }
+
 
 
     //---- Hauptstrecke for tests ----//
@@ -353,61 +380,52 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
             CIBotFrame window = new CIBotFrame();
             window.ciModel = new CIModel();
             window.initialize();
-            CIBotUtil.sleep(1500);
+            CIBotUtil.sleep(10000);
 
-            window.ciModel.setStatusForJob("AuthE BS-all", BuildStatus.BUILD_FAILED);
-            window.ciModel.setStatusForJob("AuthE Nightly", BuildStatus.BUILD_UNSTABLE);
-            window.ciModel.setStatusForJob("PHP credit", BuildStatus.BUILD_OK);
-            window.ciModel.calculateOverallStatus();
-            window.ciModel.fireUpdateEvent();
+            for (int i = 0; i < 3; i++) {
+                window.ciModel.setStatusForJob("AuthE BS-all", BuildStatus.BUILD_FAILED);
+                window.ciModel.setStatusForJob("AuthE Nightly", BuildStatus.BUILD_UNSTABLE);
+                window.ciModel.setStatusForJob("PHP credit", BuildStatus.BUILD_OK);
+                window.ciModel.calculateOverallStatus();
+                window.ciModel.fireUpdateEvent();
 
-            CIBotUtil.sleep(1500);
-            window.showConnectedIcon(ThumbiConnectionType.BLUETOOTH);
+                CIBotUtil.sleep(1500);
+                window.showConnectedIcon(ThumbiConnectionType.BLUETOOTH);
 
-            window.ciModel.setStatusForJob("AuthE BS-all", BuildStatus.BUILD_OK);
-            window.ciModel.setStatusForJob("AuthE Nightly", BuildStatus.BUILD_OK);
-            window.ciModel.setStatusForJob("PHP credit", BuildStatus.BUILD_OK);
-            window.ciModel.setStatusForJob("PHP accountingSystemIntegration", BuildStatus.BUILD_OK);
-            window.ciModel.calculateOverallStatus();
-            window.ciModel.fireUpdateEvent();
-            CIBotUtil.sleep(1500);
-            window.showConnectedIcon(null);
+                window.ciModel.setStatusForJob("AuthE BS-all", BuildStatus.BUILD_OK);
+                window.ciModel.setStatusForJob("AuthE Nightly", BuildStatus.BUILD_OK);
+                window.ciModel.setStatusForJob("PHP credit", BuildStatus.BUILD_OK);
+                window.ciModel.setStatusForJob("PHP accountingSystemIntegration", BuildStatus.BUILD_OK);
+                window.ciModel.calculateOverallStatus();
+                window.ciModel.fireUpdateEvent();
+                CIBotUtil.sleep(1500);
+                window.showConnectedIcon(null);
 
-            CIBotUtil.sleep(1500);
-            window.showConnectedIcon(ThumbiConnectionType.USB);
+                CIBotUtil.sleep(1500);
+                window.showConnectedIcon(ThumbiConnectionType.USB);
 
-            CIBotUtil.sleep(1500);
-            window.showConnectedIcon(null);
+                CIBotUtil.sleep(1500);
+                window.showConnectedIcon(null);
 
-            window.ciModel.setStatusForJob("AuthE BS-all", BuildStatus.BUILD_OK);
-            window.ciModel.setStatusForJob("AuthE Nightly", BuildStatus.BUILD_OK);
-            window.ciModel.setStatusForJob("PHP credit", BuildStatus.UNKNOWN);
-            window.ciModel.setStatusForJob("PHP accountingSystemIntegration", BuildStatus.BUILD_OK);
-            window.ciModel.calculateOverallStatus();
-            window.ciModel.fireUpdateEvent();
+                window.ciModel.setStatusForJob("AuthE BS-all", BuildStatus.BUILD_OK);
+                window.ciModel.setStatusForJob("AuthE Nightly", BuildStatus.BUILD_OK);
+                window.ciModel.setStatusForJob("PHP credit", BuildStatus.UNKNOWN);
+                window.ciModel.setStatusForJob("PHP accountingSystemIntegration", BuildStatus.BUILD_OK);
+                window.ciModel.calculateOverallStatus();
+                window.ciModel.fireUpdateEvent();
 
-            CIBotUtil.sleep(1500);
+                CIBotUtil.sleep(1500);
 
-            window.ciModel.setStatusForJob("AuthE BS-all", BuildStatus.BUILD_FAILED);
-            window.ciModel.setStatusForJob("AuthE Nightly", BuildStatus.BUILD_UNSTABLE);
-            window.ciModel.setStatusForJob("PHP credit", BuildStatus.UNKNOWN);
-            window.ciModel.setStatusForJob("PHP accountingSystemIntegration", BuildStatus.BUILD_OK);
+                window.ciModel.setStatusForJob("AuthE BS-all", BuildStatus.BUILD_FAILED);
+                window.ciModel.setStatusForJob("AuthE Nightly", BuildStatus.BUILD_UNSTABLE);
+                window.ciModel.setStatusForJob("PHP credit", BuildStatus.UNKNOWN);
+                window.ciModel.setStatusForJob("PHP accountingSystemIntegration", BuildStatus.BUILD_OK);
 
-            window.ciModel.calculateOverallStatus();
-            window.ciModel.fireUpdateEvent();
+                window.ciModel.calculateOverallStatus();
+                window.ciModel.fireUpdateEvent();
+            }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
-    }
-
-
-    private void testSvgRendering() {
-        ClassLoader classLoader = getClass().getClassLoader();
-        URL jenkinsSvgUrl = classLoader.getResource("images/jenkins_logo.svg");
-        svgCanvas = new JSVGCanvas();
-        svgCanvas.setURI(jenkinsSvgUrl.toString());
-
-        getContentPane().removeAll();
-        getContentPane().add(svgCanvas);
     }
 }
