@@ -7,6 +7,7 @@ import com.cibot.thumbi.ThumbiConnectionType;
 import com.cibot.util.CIBotUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import org.apache.batik.swing.JSVGCanvas;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +69,10 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
     private JPanel glassPanel;
 
     private JPanel statusPanel;
+
     private JPanel jobOverviewPanel;
+
+    private JSVGCanvas svgCanvas;
 
 
     public void initialize() {
@@ -340,6 +344,8 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
 
 
+
+
     //---- Hauptstrecke for tests ----//
 
     public static void main(String[] args) {
@@ -392,5 +398,16 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
+    }
+
+
+    private void testSvgRendering() {
+        ClassLoader classLoader = getClass().getClassLoader();
+        URL jenkinsSvgUrl = classLoader.getResource("images/jenkins_logo.svg");
+        svgCanvas = new JSVGCanvas();
+        svgCanvas.setURI(jenkinsSvgUrl.toString());
+
+        getContentPane().removeAll();
+        getContentPane().add(svgCanvas);
     }
 }
