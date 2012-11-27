@@ -73,18 +73,9 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
     private URL jenkinsUnavailableUrl;
 
-    private SVGDocumentLoaderListener svgDocumentLoaderListener;
-
 
     public void initialize() {
         Preconditions.checkState(ciModel != null, "Model not set");
-
-        svgDocumentLoaderListener = new SVGDocumentLoaderAdapter() {
-            @Override
-            public void documentLoadingCompleted(SVGDocumentLoaderEvent svgDocumentLoaderEvent) {
-                svgLoadedCallback();
-            }
-        };
 
         loadIcons();
 
@@ -184,24 +175,11 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
     }
 
 
-
     private void initStatusPanel() {
         statusPanel = new JPanel();
         statusPanel.setBackground(Color.WHITE);
         statusPanel.setLayout(new GridBagLayout());
 
-        setStatusCanvas(jenkinsUnavailableUrl);
-
-        GridBagConstraints con = new GridBagConstraints(1, 1, 1, 1, 1.0d, 1.0d,
-                GridBagConstraints.CENTER, GridBagConstraints.BOTH, ZERO_INSETS, 0, 0);
-
-        getContentPane().add(statusPanel, con);
-
-
-    }
-
-
-    private void setStatusCanvas(JSVGCanvas canvas) {
         GridBagConstraints con =
                 new GridBagConstraints(1, 1, 1, 1, 1.0d, 1.0d,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH, ZERO_INSETS, 0, 0);
@@ -209,7 +187,10 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
         statusPanel.removeAll();
         statusPanel.add(canvas, con);
 
+        GridBagConstraints conPanel = new GridBagConstraints(1, 1, 1, 1, 1.0d, 1.0d,
+                GridBagConstraints.CENTER, GridBagConstraints.BOTH, ZERO_INSETS, 0, 0);
 
+        getContentPane().add(statusPanel, conPanel);
     }
 
 
@@ -318,15 +299,15 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
         synchronized (model) {
             switch (model.getOverallStatus()) {
                 case BUILD_OK:
-                    setStatusCanvas(thumbUpCanvas);
+                    canvas.setURI(thumbUpUrl.toString());
                     break;
 
                 case UNKNOWN:
-                    setStatusCanvas(jenkinsUnavailableCanvas);
+                    canvas.setURI(jenkinsUnavailableUrl.toString());
                     break;
 
                 default:
-                    setStatusCanvas(thumbDownCanvas);
+                    canvas.setURI(thumbDownUrl.toString());
                     break;
             }
 
@@ -358,14 +339,6 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
     }
 
 
-
-    void svgLoadedCallback() {
-        //statusPanel.invalidate();
-        //statusPanel.repaint();
-    }
-
-
-
     //---- Hauptstrecke for tests ----//
 
     public static void main(String[] args) {
@@ -373,22 +346,22 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
             CIBotFrame window = new CIBotFrame();
             window.ciModel = new CIModel();
             window.initialize();
-            CIBotUtil.sleep(10000);
+            CIBotUtil.sleep(3000);
 
             for (int i = 0; i < 3; i++) {
-                window.ciModel.setStatusForJob("AuthE BS-all", BuildStatus.BUILD_FAILED);
-                window.ciModel.setStatusForJob("AuthE Nightly", BuildStatus.BUILD_UNSTABLE);
-                window.ciModel.setStatusForJob("PHP credit", BuildStatus.BUILD_OK);
+                window.ciModel.setStatusForJob("JOB 1", BuildStatus.BUILD_FAILED);
+                window.ciModel.setStatusForJob("JOB 2", BuildStatus.BUILD_UNSTABLE);
+                window.ciModel.setStatusForJob("JOB 3", BuildStatus.BUILD_OK);
                 window.ciModel.calculateOverallStatus();
                 window.ciModel.fireUpdateEvent();
 
                 CIBotUtil.sleep(1500);
                 window.showConnectedIcon(ThumbiConnectionType.BLUETOOTH);
 
-                window.ciModel.setStatusForJob("AuthE BS-all", BuildStatus.BUILD_OK);
-                window.ciModel.setStatusForJob("AuthE Nightly", BuildStatus.BUILD_OK);
-                window.ciModel.setStatusForJob("PHP credit", BuildStatus.BUILD_OK);
-                window.ciModel.setStatusForJob("PHP accountingSystemIntegration", BuildStatus.BUILD_OK);
+                window.ciModel.setStatusForJob("JOB 1", BuildStatus.BUILD_OK);
+                window.ciModel.setStatusForJob("JOB 2", BuildStatus.BUILD_OK);
+                window.ciModel.setStatusForJob("JOB 3", BuildStatus.BUILD_OK);
+                window.ciModel.setStatusForJob("JOB 4", BuildStatus.BUILD_OK);
                 window.ciModel.calculateOverallStatus();
                 window.ciModel.fireUpdateEvent();
                 CIBotUtil.sleep(1500);
@@ -400,19 +373,19 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
                 CIBotUtil.sleep(1500);
                 window.showConnectedIcon(null);
 
-                window.ciModel.setStatusForJob("AuthE BS-all", BuildStatus.BUILD_OK);
-                window.ciModel.setStatusForJob("AuthE Nightly", BuildStatus.BUILD_OK);
-                window.ciModel.setStatusForJob("PHP credit", BuildStatus.UNKNOWN);
-                window.ciModel.setStatusForJob("PHP accountingSystemIntegration", BuildStatus.BUILD_OK);
+                window.ciModel.setStatusForJob("JOB 1", BuildStatus.BUILD_OK);
+                window.ciModel.setStatusForJob("JOB 2", BuildStatus.BUILD_OK);
+                window.ciModel.setStatusForJob("JOB 3", BuildStatus.UNKNOWN);
+                window.ciModel.setStatusForJob("JOB 4", BuildStatus.BUILD_OK);
                 window.ciModel.calculateOverallStatus();
                 window.ciModel.fireUpdateEvent();
 
                 CIBotUtil.sleep(1500);
 
-                window.ciModel.setStatusForJob("AuthE BS-all", BuildStatus.BUILD_FAILED);
-                window.ciModel.setStatusForJob("AuthE Nightly", BuildStatus.BUILD_UNSTABLE);
-                window.ciModel.setStatusForJob("PHP credit", BuildStatus.UNKNOWN);
-                window.ciModel.setStatusForJob("PHP accountingSystemIntegration", BuildStatus.BUILD_OK);
+                window.ciModel.setStatusForJob("JOB 1", BuildStatus.BUILD_FAILED);
+                window.ciModel.setStatusForJob("JOB 2", BuildStatus.BUILD_UNSTABLE);
+                window.ciModel.setStatusForJob("JOB 3", BuildStatus.UNKNOWN);
+                window.ciModel.setStatusForJob("JOB 4", BuildStatus.BUILD_OK);
 
                 window.ciModel.calculateOverallStatus();
                 window.ciModel.fireUpdateEvent();
