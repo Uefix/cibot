@@ -65,11 +65,13 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
     private JPanel jobOverviewPanel;
 
 
-    private JSVGCanvas thumbUpCanvas;
+    private JSVGCanvas canvas;
 
-    private JSVGCanvas thumbDownCanvas;
+    private URL thumbDownUrl;
 
-    private JSVGCanvas jenkinsUnavailableCanvas;
+    private URL thumbUpUrl;
+
+    private URL jenkinsUnavailableUrl;
 
     private SVGDocumentLoaderListener svgDocumentLoaderListener;
 
@@ -86,7 +88,8 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
         loadIcons();
 
-        initSVGCanvases();
+        canvas = new JSVGCanvas();
+        initSVGCanvasUrls();
         initConnectedLabel();
 
         setLayout(new GridBagLayout());
@@ -156,22 +159,13 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
     }
 
 
-    private void initSVGCanvases() {
-        thumbUpCanvas = createSVGCanvas("images/thumbup.svg");
-        thumbDownCanvas = createSVGCanvas("images/thumbdown.svg");
-        jenkinsUnavailableCanvas = createSVGCanvas("images/jenkins_unavailable.svg");
-    }
-
-
-    private JSVGCanvas createSVGCanvas(String resource) {
+    private void initSVGCanvasUrls() {
         final ClassLoader classLoader = getClass().getClassLoader();
-
-        URL svgUrl = classLoader.getResource(resource);
-        JSVGCanvas svgCanvas = new JSVGCanvas();
-        svgCanvas.setURI(svgUrl.toString());
-        svgCanvas.addSVGDocumentLoaderListener(svgDocumentLoaderListener);
-        return svgCanvas;
+        thumbUpUrl = classLoader.getResource("images/thumbup.svg");
+        thumbDownUrl = classLoader.getResource("images/thumbdown.svg");
+        jenkinsUnavailableUrl = classLoader.getResource("images/jenkins_unavailable.svg");
     }
+
 
 
     private void centerFrame() {
@@ -196,7 +190,7 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
         statusPanel.setBackground(Color.WHITE);
         statusPanel.setLayout(new GridBagLayout());
 
-        setStatusCanvas(jenkinsUnavailableCanvas);
+        setStatusCanvas(jenkinsUnavailableUrl);
 
         GridBagConstraints con = new GridBagConstraints(1, 1, 1, 1, 1.0d, 1.0d,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH, ZERO_INSETS, 0, 0);
@@ -214,9 +208,8 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
         statusPanel.removeAll();
         statusPanel.add(canvas, con);
-        statusPanel.invalidate();
-        statusPanel.repaint();
-        canvas.repaint();
+
+
     }
 
 
@@ -367,8 +360,8 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
 
     void svgLoadedCallback() {
-        statusPanel.invalidate();
-        statusPanel.repaint();
+        //statusPanel.invalidate();
+        //statusPanel.repaint();
     }
 
 
