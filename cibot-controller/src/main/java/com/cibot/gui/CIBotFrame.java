@@ -53,20 +53,17 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
         setLayout(new GridBagLayout());
         initConnectedLabel();
+        initGlassPanel();
 
         getContentPane().add(statusPanel, constraintsBuilder().build());
         getContentPane().add(jobOverviewPanel, constraintsBuilder().gridx(2).weightx(0.1d).build());
-
-        initGlassPanel();
+        getContentPane().setBackground(BG_COLOR);
 
         setIconImage(resources.getLogoIcon().getImage());
         setTitle("ciBOT");
-        getContentPane().setBackground(BG_COLOR);
-
         setSize(685, 475);
         centerWindow(this);
         addExitWindowListener(this);
-
         setVisible(true);
 
         ciModel.addObserver(this);
