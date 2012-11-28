@@ -5,7 +5,7 @@ import com.cibot.config.CIBotConfigurationLoader;
 import com.cibot.feedreader.BuildStatusChecker;
 import com.cibot.feedreader.JenkinsBuildStatusChecker;
 import com.cibot.gui.CIBotFrame;
-import com.cibot.thumbi.ThumbiConnector;
+import com.cibot.gui.GUIResources;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,6 +17,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class CIBotApplicationConfiguration {
 
+
+    @Bean(initMethod = "initialize")
+    public GUIResources guiResources() {
+        return new GUIResources();
+    }
 
     @Bean(initMethod = "initialize")
     public CIBotFrame cibotFrame() {

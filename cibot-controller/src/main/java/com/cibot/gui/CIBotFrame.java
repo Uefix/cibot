@@ -4,13 +4,8 @@ import com.cibot.cimodel.BuildStatus;
 import com.cibot.cimodel.CIModel;
 import com.cibot.thumbi.ThumbiConnectionListener;
 import com.cibot.thumbi.ThumbiConnectionType;
-import com.cibot.util.CIBotUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import org.apache.batik.swing.JSVGCanvas;
-import org.apache.batik.swing.svg.SVGDocumentLoaderAdapter;
-import org.apache.batik.swing.svg.SVGDocumentLoaderEvent;
-import org.apache.batik.swing.svg.SVGDocumentLoaderListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +15,13 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+
+import static com.cibot.gui.GUIResources.*;
+import static com.cibot.gui.GUIUtil.*;
 
 /**
  * @author Uefix
@@ -35,65 +32,36 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
     private static final Logger LOG = LoggerFactory.getLogger(CIBotFrame.class);
 
 
-    private static final Insets ZERO_INSETS = new Insets(0, 0, 0, 0);
-
-    private static final Dimension CONNECTION_ICON_SIZE = new Dimension(50, 67);
-
-    private static final Font JOB_NAME_FONT = new Font("Arial", Font.BOLD, 14);
-
-    private static final Font JOB_NAME_FONT_ITALIC = new Font("Arial", Font.ITALIC | Font.BOLD, 14);
-
-
+    @Autowired
+    CIModel ciModel;
 
     @Autowired
-    private CIModel ciModel;
+    GUIResources resources;
+
+
+    private CIBotStatusPanel statusPanel = new CIBotStatusPanel();
 
     private JLabel connectedLabel;
 
-
-    private ImageIcon blueToothIcon;
-
-    private ImageIcon usbIcon;
-
-    private ImageIcon logoIcon;
-
-
-    private JPanel glassPanel;
-
-    private JPanel statusPanel;
-
     private JPanel jobOverviewPanel;
 
-
-    private JSVGCanvas canvas;
-
-    private URL thumbDownUrl;
-
-    private URL thumbUpUrl;
-
-    private URL jenkinsUnavailableUrl;
 
 
     public void initialize() {
         Preconditions.checkState(ciModel != null, "Model not set");
 
-        loadIcons();
-
-        canvas = new JSVGCanvas();
-        initSVGCanvasUrls();
-        initConnectedLabel();
-
         setLayout(new GridBagLayout());
-
+        initConnectedLabel();
         initStatusPanel();
         initJobOverviewPanel();
         initGlassPanel();
 
-        setIconImage(logoIcon.getImage());
+        setIconImage(resources.getLogoIcon().getImage());
         setTitle("ciBOT");
         getContentPane().setBackground(Color.WHITE);
+
         setSize(685, 475);
-        centerFrame();
+        centerWindow(this);
 
 //        updateBuildStatus(ciModel);
         ciModel.addObserver(this);
@@ -109,6 +77,8 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
         LOG.info("Initialized");
     }
+
+
 
 
     //---- java.util.Observer ----//
@@ -135,62 +105,15 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
     //---- Internal ----//
 
-
-    private void loadIcons() {
-        final ClassLoader classLoader = getClass().getClassLoader();
-
-        URL blueToothUrl = classLoader.getResource("images/bluetooth.png");
-        blueToothIcon = new ImageIcon(blueToothUrl);
-
-        URL usbUrl = classLoader.getResource("images/usb.png");
-        usbIcon = new ImageIcon(usbUrl);
-
-        URL logoIconUrl = classLoader.getResource("images/logo.png");
-        logoIcon = new ImageIcon(logoIconUrl);
-    }
-
-
-    private void initSVGCanvasUrls() {
-        final ClassLoader classLoader = getClass().getClassLoader();
-        thumbUpUrl = classLoader.getResource("images/thumbup.svg");
-        thumbDownUrl = classLoader.getResource("images/thumbdown.svg");
-        jenkinsUnavailableUrl = classLoader.getResource("images/jenkins_unavailable.svg");
-    }
-
-
-
-    private void centerFrame() {
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = ((int) screenSize.getWidth() - getWidth()) >> 1;
-        int y = ((int) screenSize.getHeight() - getHeight()) >> 1;
-        setLocation(x, y);
+    private void initStatusPanel() {
+        statusPanel.initialize();
+        getContentPane().add(statusPanel, constraintsBuilder().build());
     }
 
 
     private void initConnectedLabel() {
         connectedLabel = new JLabel();
-        connectedLabel.setSize(CONNECTION_ICON_SIZE);
-        connectedLabel.setMinimumSize(CONNECTION_ICON_SIZE);
-        connectedLabel.setMaximumSize(CONNECTION_ICON_SIZE);
-    }
-
-
-    private void initStatusPanel() {
-        statusPanel = new JPanel();
-        statusPanel.setBackground(Color.WHITE);
-        statusPanel.setLayout(new GridBagLayout());
-
-        GridBagConstraints con =
-                new GridBagConstraints(1, 1, 1, 1, 1.0d, 1.0d,
-                        GridBagConstraints.CENTER, GridBagConstraints.BOTH, ZERO_INSETS, 0, 0);
-
-        statusPanel.removeAll();
-        statusPanel.add(canvas, con);
-
-        GridBagConstraints conPanel = new GridBagConstraints(1, 1, 1, 1, 1.0d, 1.0d,
-                GridBagConstraints.CENTER, GridBagConstraints.BOTH, ZERO_INSETS, 0, 0);
-
-        getContentPane().add(statusPanel, conPanel);
+        forceSize(connectedLabel, CONNECTION_ICON_SIZE);
     }
 
 
@@ -202,11 +125,7 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
         addJobLabel("Awaiting CI status...", null);
         addDummyToOverviewPanel();
 
-        GridBagConstraints con =
-                new GridBagConstraints(2, 1, 1, 1, 0.1d, 1.0d,
-                        GridBagConstraints.CENTER, GridBagConstraints.BOTH, ZERO_INSETS, 0, 0);
-
-        getContentPane().add(jobOverviewPanel, con);
+        getContentPane().add(jobOverviewPanel, constraintsBuilder().gridx(2).weightx(0.1d).build());
         getContentPane().invalidate();
     }
 
@@ -251,45 +170,38 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
         label.setForeground(fgColor);
         label.setOpaque(true);
         label.setFont(font);
-        label.setMinimumSize(new Dimension(250, 30));
-        label.setPreferredSize(label.getMinimumSize());
         label.setHorizontalAlignment(JLabel.CENTER);
         label.setBorder(new LineBorder(borderColor, 1, false));
 
-        GridBagConstraints con =
-                new GridBagConstraints(1, jobOverviewPanel.getComponentCount() + 1, 1, 1, 1.0d, 0.0d,
-                        GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 0), 0, 0);
+        forceSize(label, JOB_LABEL_SIZE);
 
-        jobOverviewPanel.add(label, con);
+        jobOverviewPanel.add(label,
+                constraintsBuilder()
+                        .gridy(jobOverviewPanel.getComponentCount() + 1).weighty(0)
+                        .fillHorizontal().anchorNorth()
+                        .insets(1, 1, 1, 0).build());
     }
 
     private void addDummyToOverviewPanel() {
-        GridBagConstraints con =
-                    new GridBagConstraints(1, jobOverviewPanel.getComponentCount() + 1, 1, 1, 1.0d, 1.0d,
-                            GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets(1, 1, 1, 0), 0, 0);
-
         JLabel dummyLabel = new JLabel();
         dummyLabel.setOpaque(false);
-        jobOverviewPanel.add(dummyLabel, con);
+        jobOverviewPanel.add(dummyLabel, constraintsBuilder()
+                        .gridy(jobOverviewPanel.getComponentCount() + 1)
+                        .anchorNorth()
+                        .insets(1, 1, 1, 0).build());
     }
 
 
     private void initGlassPanel() {
-        glassPanel = new JPanel(new GridBagLayout());
-
-        Dimension glassPanelSize =
-                new Dimension((int) CONNECTION_ICON_SIZE.getWidth() + 10,
-                        (int) CONNECTION_ICON_SIZE.getHeight() + 10);
-
-        GridBagConstraints con =
-                new GridBagConstraints(1, 1, 1, 1, 1.0d, 1.0d,
-                        GridBagConstraints.SOUTHWEST, GridBagConstraints.BOTH, new Insets(5, 5, 0, 0), 0, 0);
-
-        glassPanel.add(connectedLabel, con);
-        glassPanel.setSize(glassPanelSize);
-        glassPanel.setMinimumSize(glassPanelSize);
+        JPanel glassPanel = new JPanel(new GridBagLayout());
         glassPanel.setBackground(Color.WHITE);
 
+        glassPanel.add(connectedLabel,
+                constraintsBuilder()
+                        .anchor(GridBagConstraints.SOUTHWEST)
+                        .insets(5, 5, 0, 0).build());
+
+        forceSize(glassPanel, reDimension(CONNECTION_ICON_SIZE, 10, 10));
         getLayeredPane().add(glassPanel, JLayeredPane.POPUP_LAYER);
 
     }
@@ -299,15 +211,15 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
         synchronized (model) {
             switch (model.getOverallStatus()) {
                 case BUILD_OK:
-                    canvas.setURI(thumbUpUrl.toString());
+                    statusPanel.setCanvasSVGUrl(resources.getThumbUpUrl());
                     break;
 
                 case UNKNOWN:
-                    canvas.setURI(jenkinsUnavailableUrl.toString());
+                    statusPanel.setCanvasSVGUrl(resources.getJenkinsUnavailableUrl());
                     break;
 
                 default:
-                    canvas.setURI(thumbDownUrl.toString());
+                    statusPanel.setCanvasSVGUrl(resources.getThumbDownUrl());
                     break;
             }
 
@@ -326,72 +238,13 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
     }
 
 
-    private void showConnectedIcon(ThumbiConnectionType connectionType) {
+    void showConnectedIcon(ThumbiConnectionType connectionType) {
         if (connectionType == null) {
             connectedLabel.setIcon(null);
         } else if (connectionType == ThumbiConnectionType.BLUETOOTH) {
-            connectedLabel.setIcon(blueToothIcon);
+            connectedLabel.setIcon(resources.getBlueToothIcon());
         } else if (connectionType == ThumbiConnectionType.USB) {
-            connectedLabel.setIcon(usbIcon);
-        }
-        connectedLabel.validate();
-        connectedLabel.repaint();
-    }
-
-
-    //---- Hauptstrecke for tests ----//
-
-    public static void main(String[] args) {
-        try {
-            CIBotFrame window = new CIBotFrame();
-            window.ciModel = new CIModel();
-            window.initialize();
-            CIBotUtil.sleep(3000);
-
-            for (int i = 0; i < 3; i++) {
-                window.ciModel.setStatusForJob("JOB 1", BuildStatus.BUILD_FAILED);
-                window.ciModel.setStatusForJob("JOB 2", BuildStatus.BUILD_UNSTABLE);
-                window.ciModel.setStatusForJob("JOB 3", BuildStatus.BUILD_OK);
-                window.ciModel.calculateOverallStatus();
-                window.ciModel.fireUpdateEvent();
-
-                CIBotUtil.sleep(1500);
-                window.showConnectedIcon(ThumbiConnectionType.BLUETOOTH);
-
-                window.ciModel.setStatusForJob("JOB 1", BuildStatus.BUILD_OK);
-                window.ciModel.setStatusForJob("JOB 2", BuildStatus.BUILD_OK);
-                window.ciModel.setStatusForJob("JOB 3", BuildStatus.BUILD_OK);
-                window.ciModel.setStatusForJob("JOB 4", BuildStatus.BUILD_OK);
-                window.ciModel.calculateOverallStatus();
-                window.ciModel.fireUpdateEvent();
-                CIBotUtil.sleep(1500);
-                window.showConnectedIcon(null);
-
-                CIBotUtil.sleep(1500);
-                window.showConnectedIcon(ThumbiConnectionType.USB);
-
-                CIBotUtil.sleep(1500);
-                window.showConnectedIcon(null);
-
-                window.ciModel.setStatusForJob("JOB 1", BuildStatus.BUILD_OK);
-                window.ciModel.setStatusForJob("JOB 2", BuildStatus.BUILD_OK);
-                window.ciModel.setStatusForJob("JOB 3", BuildStatus.UNKNOWN);
-                window.ciModel.setStatusForJob("JOB 4", BuildStatus.BUILD_OK);
-                window.ciModel.calculateOverallStatus();
-                window.ciModel.fireUpdateEvent();
-
-                CIBotUtil.sleep(1500);
-
-                window.ciModel.setStatusForJob("JOB 1", BuildStatus.BUILD_FAILED);
-                window.ciModel.setStatusForJob("JOB 2", BuildStatus.BUILD_UNSTABLE);
-                window.ciModel.setStatusForJob("JOB 3", BuildStatus.UNKNOWN);
-                window.ciModel.setStatusForJob("JOB 4", BuildStatus.BUILD_OK);
-
-                window.ciModel.calculateOverallStatus();
-                window.ciModel.fireUpdateEvent();
-            }
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            connectedLabel.setIcon(resources.getUsbIcon());
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.cibot.util;
 
+import java.net.URL;
+
 /**
  * User: Uefix
  * Date: 01.10.12
@@ -14,5 +16,10 @@ public final class CIBotUtil {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
         }
+    }
+
+
+    public static URL getResource(String name) {
+        return CIBotUtil.class.getClassLoader().getResource(name);
     }
 }
