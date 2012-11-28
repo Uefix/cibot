@@ -38,13 +38,14 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
     @Autowired
     GUIResources resources;
 
+    @Autowired
+    CIBotStatusPanel statusPanel;
 
-    private CIBotStatusPanel statusPanel = new CIBotStatusPanel();
+    @Autowired
+    CIBotJobOverviewPanel jobOverviewPanel;
+
 
     private JLabel connectedLabel;
-
-    private JPanel jobOverviewPanel;
-
 
 
     public void initialize() {
@@ -52,33 +53,26 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
         setLayout(new GridBagLayout());
         initConnectedLabel();
-        initStatusPanel();
-        initJobOverviewPanel();
+
+        getContentPane().add(statusPanel, constraintsBuilder().build());
+        getContentPane().add(jobOverviewPanel, constraintsBuilder().gridx(2).weightx(0.1d).build());
+
         initGlassPanel();
 
         setIconImage(resources.getLogoIcon().getImage());
         setTitle("ciBOT");
-        getContentPane().setBackground(Color.WHITE);
+        getContentPane().setBackground(BG_COLOR);
 
         setSize(685, 475);
         centerWindow(this);
-
-//        updateBuildStatus(ciModel);
-        ciModel.addObserver(this);
-
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent windowEvent) {
-                System.exit(1);
-            }
-        });
+        addExitWindowListener(this);
 
         setVisible(true);
 
+        ciModel.addObserver(this);
+
         LOG.info("Initialized");
     }
-
-
 
 
     //---- java.util.Observer ----//
@@ -86,7 +80,12 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
     @Override
     public void update(Observable obs, Object arg) {
         CIModel model = (CIModel) obs;
-        updateBuildStatus(model);
+        synchronized (model) {
+            updateStatusPanel(model);
+            updateJobOverviewPanel(model);
+            validate();
+            repaint();
+        }
     }
 
 
@@ -105,96 +104,15 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
     //---- Internal ----//
 
-    private void initStatusPanel() {
-        statusPanel.initialize();
-        getContentPane().add(statusPanel, constraintsBuilder().build());
-    }
-
-
     private void initConnectedLabel() {
         connectedLabel = new JLabel();
         forceSize(connectedLabel, CONNECTION_ICON_SIZE);
     }
 
 
-    private void initJobOverviewPanel() {
-        jobOverviewPanel = new JPanel();
-        jobOverviewPanel.setOpaque(false);
-        jobOverviewPanel.setLayout(new GridBagLayout());
-
-        addJobLabel("Awaiting CI status...", null);
-        addDummyToOverviewPanel();
-
-        getContentPane().add(jobOverviewPanel, constraintsBuilder().gridx(2).weightx(0.1d).build());
-        getContentPane().invalidate();
-    }
-
-
-    private void addJobLabel(String jobName, BuildStatus status) {
-        Color bgColor = Color.WHITE;
-        Color fgColor = Color.BLACK;
-        Color borderColor = Color.BLACK;
-        Font font = JOB_NAME_FONT;
-
-        if (status != null) {
-            switch (status) {
-                case BUILD_OK:
-                    bgColor = Color.GREEN.darker().darker();
-                    fgColor = Color.WHITE;
-                    break;
-
-                case BUILD_FAILED:
-                    bgColor = Color.RED;
-                    fgColor = Color.BLACK;
-                    break;
-
-                case BUILD_UNSTABLE:
-                    bgColor = Color.RED;
-                    fgColor = Color.YELLOW;
-                    font = JOB_NAME_FONT_ITALIC;
-                    break;
-
-                case UNKNOWN:
-                    bgColor = Color.BLACK;
-                    fgColor = Color.YELLOW;
-                    font = JOB_NAME_FONT_ITALIC;
-                    break;
-
-            }
-        } else {
-            font = JOB_NAME_FONT_ITALIC;
-        }
-
-        JLabel label = new JLabel(jobName);
-        label.setBackground(bgColor);
-        label.setForeground(fgColor);
-        label.setOpaque(true);
-        label.setFont(font);
-        label.setHorizontalAlignment(JLabel.CENTER);
-        label.setBorder(new LineBorder(borderColor, 1, false));
-
-        forceSize(label, JOB_LABEL_SIZE);
-
-        jobOverviewPanel.add(label,
-                constraintsBuilder()
-                        .gridy(jobOverviewPanel.getComponentCount() + 1).weighty(0)
-                        .fillHorizontal().anchorNorth()
-                        .insets(1, 1, 1, 0).build());
-    }
-
-    private void addDummyToOverviewPanel() {
-        JLabel dummyLabel = new JLabel();
-        dummyLabel.setOpaque(false);
-        jobOverviewPanel.add(dummyLabel, constraintsBuilder()
-                        .gridy(jobOverviewPanel.getComponentCount() + 1)
-                        .anchorNorth()
-                        .insets(1, 1, 1, 0).build());
-    }
-
-
     private void initGlassPanel() {
         JPanel glassPanel = new JPanel(new GridBagLayout());
-        glassPanel.setBackground(Color.WHITE);
+        glassPanel.setBackground(BG_COLOR);
 
         glassPanel.add(connectedLabel,
                 constraintsBuilder()
@@ -207,33 +125,31 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
     }
 
 
-    private void updateBuildStatus(CIModel model) {
-        synchronized (model) {
-            switch (model.getOverallStatus()) {
-                case BUILD_OK:
-                    statusPanel.setCanvasSVGUrl(resources.getThumbUpUrl());
-                    break;
+    private void updateJobOverviewPanel(CIModel model) {
+        jobOverviewPanel.removeAll();
+        List<String> jobKeys = Lists.newArrayList(model.getJobKeys());
+        Collections.sort(jobKeys);
+        for (String jobKey : jobKeys) {
+            BuildStatus status = model.getStatusForJob(jobKey);
+            jobOverviewPanel.addJobLabel(jobKey, status);
+        }
+        jobOverviewPanel.addDummyToOverviewPanel();
+    }
 
-                case UNKNOWN:
-                    statusPanel.setCanvasSVGUrl(resources.getJenkinsUnavailableUrl());
-                    break;
 
-                default:
-                    statusPanel.setCanvasSVGUrl(resources.getThumbDownUrl());
-                    break;
-            }
+    private void updateStatusPanel(CIModel model) {
+        switch (model.getOverallStatus()) {
+            case BUILD_OK:
+                statusPanel.setCanvasSVGUrl(resources.getThumbUpUrl());
+                break;
 
-            jobOverviewPanel.removeAll();
-            List<String> jobKeys = Lists.newArrayList(model.getJobKeys());
-            Collections.sort(jobKeys);
-            for (String jobKey : jobKeys) {
-                BuildStatus status = model.getStatusForJob(jobKey);
-                addJobLabel(jobKey, status);
-            }
-            addDummyToOverviewPanel();
+            case UNKNOWN:
+                statusPanel.setCanvasSVGUrl(resources.getJenkinsUnavailableUrl());
+                break;
 
-            validate();
-            repaint();
+            default:
+                statusPanel.setCanvasSVGUrl(resources.getThumbDownUrl());
+                break;
         }
     }
 

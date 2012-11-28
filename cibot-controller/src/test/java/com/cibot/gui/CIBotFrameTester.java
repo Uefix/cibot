@@ -19,6 +19,10 @@ public class CIBotFrameTester {
             window.ciModel = new CIModel();
             window.resources = new GUIResources();
             window.resources.initialize();
+            window.statusPanel = new CIBotStatusPanel();
+            window.statusPanel.initialize();
+            window.jobOverviewPanel = new CIBotJobOverviewPanel();
+            window.jobOverviewPanel.initialize();
             window.initialize();
             CIBotUtil.sleep(3000);
 

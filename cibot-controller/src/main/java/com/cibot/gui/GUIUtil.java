@@ -3,6 +3,8 @@ package com.cibot.gui;
 import com.google.common.base.Preconditions;
 
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * @author Uefix
@@ -19,6 +21,18 @@ public final class GUIUtil {
         int x = ((int) screenSize.getWidth() - window.getWidth()) >> 1;
         int y = ((int) screenSize.getHeight() - window.getHeight()) >> 1;
         window.setLocation(x, y);
+    }
+
+
+    public static void addExitWindowListener(Window window) {
+        Preconditions.checkArgument(window != null);
+        window.addWindowListener(
+                new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent windowEvent) {
+                        System.exit(1);
+                    }
+                });
     }
 
 

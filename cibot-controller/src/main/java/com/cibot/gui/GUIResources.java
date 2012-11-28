@@ -24,6 +24,7 @@ public final class GUIResources {
 
     public static final Dimension JOB_LABEL_SIZE = new Dimension(250, 30);
 
+    public static final Color BG_COLOR = Color.WHITE;
 
 
     private ImageIcon blueToothIcon;

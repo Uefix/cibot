@@ -5,6 +5,8 @@ import com.cibot.config.CIBotConfigurationLoader;
 import com.cibot.feedreader.BuildStatusChecker;
 import com.cibot.feedreader.JenkinsBuildStatusChecker;
 import com.cibot.gui.CIBotFrame;
+import com.cibot.gui.CIBotJobOverviewPanel;
+import com.cibot.gui.CIBotStatusPanel;
 import com.cibot.gui.GUIResources;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,8 +26,18 @@ public class CIBotApplicationConfiguration {
     }
 
     @Bean(initMethod = "initialize")
-    public CIBotFrame cibotFrame() {
+    public CIBotFrame guiFrame() {
         return new CIBotFrame();
+    }
+
+    @Bean(initMethod = "initialize")
+    public CIBotStatusPanel guiStatusPanel() {
+        return new CIBotStatusPanel();
+    }
+
+    @Bean(initMethod = "initialize")
+    public CIBotJobOverviewPanel guiJobOverviewPanel() {
+        return new CIBotJobOverviewPanel();
     }
 
 
