@@ -5,6 +5,10 @@
         <timeout>10000</timeout>
     </thumbi>
 
+    <gui>
+        <labelProperties width="100" height="32" fontSize="24"/>
+    </gui>
+
     <feedReader>
         <logins>
             <login id="jenkins" user="develop" password="pw123"/>

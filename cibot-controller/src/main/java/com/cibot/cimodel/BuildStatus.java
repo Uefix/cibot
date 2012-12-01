@@ -8,17 +8,15 @@ package com.cibot.cimodel;
  */
 public enum BuildStatus {
 
-    /** Indicates that the status is unknown and can't be determined. */
-    UNKNOWN,
-
     /** Indicates that the build is okay and stable */
     BUILD_OK,
+
+    /** Indicates that the status is unknown and can't be determined. */
+    UNKNOWN,
 
     /** Indicates that the build is unstable because some tests have failed */
     BUILD_UNSTABLE,
 
     /** Indicates that the build is broken because the code does not compile */
     BUILD_FAILED;
-
-
 }

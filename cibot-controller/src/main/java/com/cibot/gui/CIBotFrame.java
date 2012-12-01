@@ -2,6 +2,7 @@ package com.cibot.gui;
 
 import com.cibot.cimodel.BuildStatus;
 import com.cibot.cimodel.CIModel;
+import com.cibot.cimodel.JobKeyComparator;
 import com.cibot.thumbi.ThumbiConnectionListener;
 import com.cibot.thumbi.ThumbiConnectionType;
 import com.google.common.base.Preconditions;
@@ -11,10 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.Collections;
 import java.util.List;
 import java.util.Observable;
@@ -43,6 +41,9 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
 
     @Autowired
     CIBotJobOverviewPanel jobOverviewPanel;
+
+    @Autowired
+    JobKeyComparator jobKeyComparator;
 
 
     private JLabel connectedLabel;
@@ -125,7 +126,7 @@ public class CIBotFrame extends JFrame implements Observer, ThumbiConnectionList
     private void updateJobOverviewPanel(CIModel model) {
         jobOverviewPanel.removeAll();
         List<String> jobKeys = Lists.newArrayList(model.getJobKeys());
-        Collections.sort(jobKeys);
+        Collections.sort(jobKeys, jobKeyComparator);
         for (String jobKey : jobKeys) {
             BuildStatus status = model.getStatusForJob(jobKey);
             jobOverviewPanel.addJobLabel(jobKey, status);

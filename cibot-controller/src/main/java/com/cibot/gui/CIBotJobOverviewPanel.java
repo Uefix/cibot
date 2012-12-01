@@ -68,6 +68,8 @@ public class CIBotJobOverviewPanel extends JPanel {
         label.setHorizontalAlignment(JLabel.CENTER);
         label.setBorder(new LineBorder(borderColor, 1, false));
 
+
+
         forceSize(label, JOB_LABEL_SIZE);
 
         add(label, constraintsBuilder().gridy(getComponentCount() + 1).weighty(0)

@@ -2,6 +2,7 @@ package com.cibot.gui;
 
 import com.cibot.cimodel.BuildStatus;
 import com.cibot.cimodel.CIModel;
+import com.cibot.cimodel.JobKeyComparator;
 import com.cibot.thumbi.ThumbiConnectionType;
 import com.cibot.util.CIBotUtil;
 
@@ -17,6 +18,7 @@ public class CIBotFrameTester {
         try {
             CIBotFrame window = new CIBotFrame();
             window.ciModel = new CIModel();
+            window.jobKeyComparator = new JobKeyComparator(window.ciModel);
             window.resources = new GUIResources();
             window.resources.initialize();
             window.statusPanel = new CIBotStatusPanel();

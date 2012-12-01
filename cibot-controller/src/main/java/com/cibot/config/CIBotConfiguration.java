@@ -34,6 +34,7 @@ public class CIBotConfiguration {
     private FeedReader feedReader = new FeedReader();
 
 
+
     public Login getLogin(Feed feed) {
         Preconditions.checkArgument(feed != null);
         Preconditions.checkArgument(feed.hasLogin());
@@ -50,6 +51,7 @@ public class CIBotConfiguration {
     public FeedReader getFeedReader() {
         return feedReader;
     }
+
 
     @XmlRootElement
     @XmlAccessorType(XmlAccessType.FIELD)
@@ -473,6 +475,80 @@ public class CIBotConfiguration {
     }
 
 
+    @XmlRootElement
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class LabelProperties {
+
+
+        @XmlAttribute
+        private int width = 250;
+
+        @XmlAttribute
+        private int height = 30;
+
+        @XmlAttribute
+        private int fontSize = 14;
+
+
+        public int getWidth() {
+            return width;
+        }
+
+        public void setWidth(int width) {
+            this.width = width;
+        }
+
+        public int getHeight() {
+            return height;
+        }
+
+        public void setHeight(int height) {
+            this.height = height;
+        }
+
+        public int getFontSize() {
+            return fontSize;
+        }
+
+        public void setFontSize(int fontSize) {
+            this.fontSize = fontSize;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            LabelProperties that = (LabelProperties) o;
+
+            if (fontSize != that.fontSize) return false;
+            if (height != that.height) return false;
+            if (width != that.width) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = width;
+            result = 31 * result + height;
+            result = 31 * result + fontSize;
+            return result;
+        }
+    }
+
+
+    @XmlRootElement
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class GUI {
+        @XmlElement
+        private LabelProperties labelProperties = new LabelProperties();
+
+
+        public LabelProperties getLabelProperties() {
+            return labelProperties;
+        }
+    }
 
 
     @Override
@@ -483,6 +559,8 @@ public class CIBotConfiguration {
         CIBotConfiguration that = (CIBotConfiguration) o;
 
         if (feedReader != null ? !feedReader.equals(that.feedReader) : that.feedReader != null) return false;
+        if (labelProperties != null ? !labelProperties.equals(that.labelProperties) : that.labelProperties != null)
+            return false;
         if (thumbi != null ? !thumbi.equals(that.thumbi) : that.thumbi != null) return false;
 
         return true;
@@ -492,6 +570,7 @@ public class CIBotConfiguration {
     public int hashCode() {
         int result = thumbi != null ? thumbi.hashCode() : 0;
         result = 31 * result + (feedReader != null ? feedReader.hashCode() : 0);
+        result = 31 * result + (labelProperties != null ? labelProperties.hashCode() : 0);
         return result;
     }
 
@@ -500,6 +579,7 @@ public class CIBotConfiguration {
         return "CIBotConfiguration{" +
                 "thumbi=" + thumbi +
                 ", feedReader=" + feedReader +
+                ", labelProperties=" + labelProperties +
                 '}';
     }
 }

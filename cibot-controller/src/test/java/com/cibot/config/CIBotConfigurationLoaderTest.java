@@ -38,6 +38,10 @@ public class CIBotConfigurationLoaderTest {
         expected.getThumbi().setTimeout(10000L);
         expected.getThumbi().setEnabled(false);
 
+        expected.getLabelProperties().setFontSize(24);
+        expected.getLabelProperties().setWidth(100);
+        expected.getLabelProperties().setHeight(32);
+
         CIBotConfiguration.FeedReader expectedFeedReader = expected.getFeedReader();
         expectedFeedReader.setLoginsList(Lists.newArrayList(new CIBotConfiguration.Login("jenkins", "develop", "pw123")));
 
