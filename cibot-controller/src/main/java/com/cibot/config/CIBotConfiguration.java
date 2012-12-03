@@ -537,7 +537,7 @@ public class CIBotConfiguration {
         }
     }
 
-
+/*
     @XmlRootElement
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class GUI {
@@ -549,7 +549,7 @@ public class CIBotConfiguration {
             return labelProperties;
         }
     }
-
+ */
 
     @Override
     public boolean equals(Object o) {
@@ -559,8 +559,8 @@ public class CIBotConfiguration {
         CIBotConfiguration that = (CIBotConfiguration) o;
 
         if (feedReader != null ? !feedReader.equals(that.feedReader) : that.feedReader != null) return false;
-        if (labelProperties != null ? !labelProperties.equals(that.labelProperties) : that.labelProperties != null)
-            return false;
+//        if (labelProperties != null ? !labelProperties.equals(that.labelProperties) : that.labelProperties != null)
+//            return false;
         if (thumbi != null ? !thumbi.equals(that.thumbi) : that.thumbi != null) return false;
 
         return true;
@@ -570,7 +570,7 @@ public class CIBotConfiguration {
     public int hashCode() {
         int result = thumbi != null ? thumbi.hashCode() : 0;
         result = 31 * result + (feedReader != null ? feedReader.hashCode() : 0);
-        result = 31 * result + (labelProperties != null ? labelProperties.hashCode() : 0);
+//        result = 31 * result + (labelProperties != null ? labelProperties.hashCode() : 0);
         return result;
     }
 
@@ -579,7 +579,7 @@ public class CIBotConfiguration {
         return "CIBotConfiguration{" +
                 "thumbi=" + thumbi +
                 ", feedReader=" + feedReader +
-                ", labelProperties=" + labelProperties +
+//                ", labelProperties=" + labelProperties +
                 '}';
     }
 }
