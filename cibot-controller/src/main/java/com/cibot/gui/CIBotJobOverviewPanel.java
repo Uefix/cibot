@@ -1,6 +1,7 @@
 package com.cibot.gui;
 
 import com.cibot.cimodel.BuildStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -16,6 +17,10 @@ import static com.cibot.gui.GUIUtil.forceSize;
 public class CIBotJobOverviewPanel extends JPanel {
 
 
+    @Autowired
+    GUIResources resources;
+
+
     public void initialize() {
         setLayout(new GridBagLayout());
         setOpaque(false);
@@ -29,7 +34,7 @@ public class CIBotJobOverviewPanel extends JPanel {
         Color bgColor = BG_COLOR;
         Color fgColor = Color.BLACK;
         Color borderColor = Color.BLACK;
-        Font font = JOB_NAME_FONT;
+        Font font = resources.getJobNameFont();
 
         if (status != null) {
             switch (status) {
@@ -46,18 +51,18 @@ public class CIBotJobOverviewPanel extends JPanel {
                 case BUILD_UNSTABLE:
                     bgColor = Color.RED;
                     fgColor = Color.YELLOW;
-                    font = JOB_NAME_FONT_ITALIC;
+                    font = resources.getJobNameFontItalic();
                     break;
 
                 case UNKNOWN:
                     bgColor = Color.BLACK;
                     fgColor = Color.YELLOW;
-                    font = JOB_NAME_FONT_ITALIC;
+                    font = resources.getJobNameFontItalic();
                     break;
 
             }
         } else {
-            font = JOB_NAME_FONT_ITALIC;
+            font = resources.getJobNameFontItalic();
         }
 
         JLabel label = new JLabel(jobName);
@@ -68,9 +73,7 @@ public class CIBotJobOverviewPanel extends JPanel {
         label.setHorizontalAlignment(JLabel.CENTER);
         label.setBorder(new LineBorder(borderColor, 1, false));
 
-
-
-        forceSize(label, JOB_LABEL_SIZE);
+        forceSize(label, resources.getJobLabelSize());
 
         add(label, constraintsBuilder().gridy(getComponentCount() + 1).weighty(0)
                 .fillHorizontal().anchorNorth().insets(1, 1, 1, 0).build());

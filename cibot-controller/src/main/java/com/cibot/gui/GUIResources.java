@@ -1,6 +1,9 @@
 package com.cibot.gui;
 
+import com.cibot.config.CIBotConfiguration;
+import com.cibot.config.LabelPropertiesElement;
 import com.cibot.util.CIBotUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
@@ -18,11 +21,6 @@ public final class GUIResources {
 
     public static final Dimension CONNECTION_ICON_SIZE = new Dimension(50, 67);
 
-    public static final Font JOB_NAME_FONT = new Font("Arial", Font.BOLD, 14);
-
-    public static final Font JOB_NAME_FONT_ITALIC = new Font("Arial", Font.ITALIC | Font.BOLD, 14);
-
-    public static final Dimension JOB_LABEL_SIZE = new Dimension(250, 30);
 
     public static final Color BG_COLOR = Color.WHITE;
 
@@ -41,10 +39,27 @@ public final class GUIResources {
     private URL jenkinsUnavailableUrl;
 
 
+    private Font jobNameFont;
+
+    private Font jobNameFontItalic;
+
+    private Dimension jobLabelSize;
+
+
+    @Autowired
+    CIBotConfiguration configuration;
+
 
     public void initialize() {
         initSVGCanvasUrls();
         loadIcons();
+
+        LabelPropertiesElement labelProperties = configuration.getGui().getLabelProperties();
+        int fontSize = labelProperties.getFontSize();
+        jobNameFont = new Font("Arial", Font.BOLD, fontSize);
+        jobNameFontItalic = new Font("Arial", Font.BOLD | Font.ITALIC, fontSize);
+        jobLabelSize = new Dimension(labelProperties.getWidth(), labelProperties.getHeight());
+
     }
 
 
@@ -72,6 +87,19 @@ public final class GUIResources {
 
     public URL getJenkinsUnavailableUrl() {
         return jenkinsUnavailableUrl;
+    }
+
+
+    public Dimension getJobLabelSize() {
+        return jobLabelSize;
+    }
+
+    public Font getJobNameFont() {
+        return jobNameFont;
+    }
+
+    public Font getJobNameFontItalic() {
+        return jobNameFontItalic;
     }
 
 

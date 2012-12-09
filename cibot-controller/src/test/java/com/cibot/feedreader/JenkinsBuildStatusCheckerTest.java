@@ -2,6 +2,8 @@ package com.cibot.feedreader;
 
 import com.cibot.cimodel.BuildStatus;
 import com.cibot.config.CIBotConfiguration;
+import com.cibot.config.FeedElement;
+import com.cibot.config.LoginElement;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,7 +62,7 @@ public class JenkinsBuildStatusCheckerTest {
             return;
         }
 
-        CIBotConfiguration.Feed feed = new CIBotConfiguration.Feed();
+        FeedElement feed = new FeedElement();
         feed.setUrl(new URL(url));
         feed.setLogin("test");
 
@@ -77,8 +79,8 @@ public class JenkinsBuildStatusCheckerTest {
 
 
     private void mockConfiguration_getLogin() {
-        CIBotConfiguration.Login loginConfig = new CIBotConfiguration.Login("test", user, password);
-        when(configuration.getLogin(any(CIBotConfiguration.Feed.class))).thenReturn(loginConfig);
+        LoginElement loginConfig = new LoginElement("test", user, password);
+        when(configuration.getLogin(any(FeedElement.class))).thenReturn(loginConfig);
     }
 
 

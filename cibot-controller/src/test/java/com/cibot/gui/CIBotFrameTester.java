@@ -3,6 +3,7 @@ package com.cibot.gui;
 import com.cibot.cimodel.BuildStatus;
 import com.cibot.cimodel.CIModel;
 import com.cibot.cimodel.JobKeyComparator;
+import com.cibot.config.CIBotConfiguration;
 import com.cibot.thumbi.ThumbiConnectionType;
 import com.cibot.util.CIBotUtil;
 
@@ -19,16 +20,25 @@ public class CIBotFrameTester {
             CIBotFrame window = new CIBotFrame();
             window.ciModel = new CIModel();
             window.jobKeyComparator = new JobKeyComparator(window.ciModel);
+
             window.resources = new GUIResources();
+            window.resources.configuration = new CIBotConfiguration();
+            window.resources.configuration.getGui().getLabelProperties().setFontSize(56);
+            window.resources.configuration.getGui().getLabelProperties().setWidth(600);
+            window.resources.configuration.getGui().getLabelProperties().setHeight(70);
             window.resources.initialize();
+
             window.statusPanel = new CIBotStatusPanel();
             window.statusPanel.initialize();
+
             window.jobOverviewPanel = new CIBotJobOverviewPanel();
+            window.jobOverviewPanel.resources = window.resources;
             window.jobOverviewPanel.initialize();
+
             window.initialize();
             CIBotUtil.sleep(3000);
 
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 1; i++) {
                 window.ciModel.setStatusForJob("JOB 1", BuildStatus.BUILD_FAILED);
                 window.ciModel.setStatusForJob("JOB 2", BuildStatus.BUILD_UNSTABLE);
                 window.ciModel.setStatusForJob("JOB 3", BuildStatus.BUILD_OK);
@@ -65,7 +75,10 @@ public class CIBotFrameTester {
                 window.ciModel.setStatusForJob("JOB 1", BuildStatus.BUILD_FAILED);
                 window.ciModel.setStatusForJob("JOB 2", BuildStatus.BUILD_UNSTABLE);
                 window.ciModel.setStatusForJob("JOB 3", BuildStatus.UNKNOWN);
-                window.ciModel.setStatusForJob("JOB 4", BuildStatus.BUILD_OK);
+                window.ciModel.setStatusForJob("AB fooBar-NightlyBuild", BuildStatus.BUILD_OK);
+                window.ciModel.setStatusForJob("AB fooBar-AllTests", BuildStatus.BUILD_OK);
+                window.ciModel.setStatusForJob("XYZ credit", BuildStatus.BUILD_OK);
+                window.ciModel.setStatusForJob("XYZ schlumpfIntegration", BuildStatus.BUILD_OK);
 
                 window.ciModel.calculateOverallStatus();
                 window.ciModel.fireUpdateEvent();

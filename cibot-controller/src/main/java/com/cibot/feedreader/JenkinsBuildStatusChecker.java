@@ -2,6 +2,8 @@ package com.cibot.feedreader;
 
 import com.cibot.cimodel.BuildStatus;
 import com.cibot.config.CIBotConfiguration;
+import com.cibot.config.FeedElement;
+import com.cibot.config.LoginElement;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.SyndFeedInput;
@@ -35,7 +37,7 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
 
 
     @Override
-    public BuildStatus getBuildStatus(CIBotConfiguration.Feed feed) {
+    public BuildStatus getBuildStatus(FeedElement feed) {
         BuildStatus status = BuildStatus.UNKNOWN;
         Reader reader = null;
         try {
@@ -77,10 +79,10 @@ public class JenkinsBuildStatusChecker implements BuildStatusChecker {
     }
 
 
-    private URLConnection initializedConnection(CIBotConfiguration.Feed feed) throws IOException {
+    private URLConnection initializedConnection(FeedElement feed) throws IOException {
         URLConnection con = feed.getUrl().openConnection();
         if (feed.hasLogin()) {
-            CIBotConfiguration.Login loginConfig = configuration.getLogin(feed);
+            LoginElement loginConfig = configuration.getLogin(feed);
             String encodedAuth = new BASE64Encoder().encode(
                     (loginConfig.getUser() + ":" + loginConfig.getPassword()).getBytes());
 

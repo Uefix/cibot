@@ -1,7 +1,7 @@
 package com.cibot.feedreader;
 
 import com.cibot.cimodel.BuildStatus;
-import com.cibot.config.CIBotConfiguration;
+import com.cibot.config.FeedElement;
 
 /**
  * Utility to determine the current status of a CI build.
@@ -19,5 +19,5 @@ public interface BuildStatusChecker {
      * @return the current status of the build
      * @throws IllegalStateException if checking the build status fails for any reason
      */
-    BuildStatus getBuildStatus(CIBotConfiguration.Feed feed);
+    BuildStatus getBuildStatus(FeedElement feed);
 }

@@ -37,18 +37,18 @@ public class CIBotConfigurationLoaderTest {
         expected.getThumbi().setConnectionUri("usb://NXT_A");
         expected.getThumbi().setTimeout(10000L);
         expected.getThumbi().setEnabled(false);
-/*
-        expected.getLabelProperties().setFontSize(24);
-        expected.getLabelProperties().setWidth(100);
-        expected.getLabelProperties().setHeight(32);
- */
-        CIBotConfiguration.FeedReader expectedFeedReader = expected.getFeedReader();
-        expectedFeedReader.setLoginsList(Lists.newArrayList(new CIBotConfiguration.Login("jenkins", "develop", "pw123")));
 
-        CIBotConfiguration.Feed namedFeed = new CIBotConfiguration.Feed(new URL("http://JENKINS_HOST:8080/jenkins/job/NAME_OF_THE_JOB1/rssAll"), null);
+        expected.getGui().getLabelProperties().setFontSize(24);
+        expected.getGui().getLabelProperties().setWidth(100);
+        expected.getGui().getLabelProperties().setHeight(32);
+
+        FeedReaderElement expectedFeedReader = expected.getFeedReader();
+        expectedFeedReader.setLoginsList(Lists.newArrayList(new LoginElement("jenkins", "develop", "pw123")));
+
+        FeedElement namedFeed = new FeedElement(new URL("http://JENKINS_HOST:8080/jenkins/job/NAME_OF_THE_JOB1/rssAll"), null);
         namedFeed.setJobName("theJob");
         expectedFeedReader.getFeeds().add(namedFeed);
-        expectedFeedReader.getFeeds().add(new CIBotConfiguration.Feed(new URL("http://JENKINS_HOST:8080/jenkins/job/NAME_OF_THE_JOB2/rssAll"), "jenkins"));
+        expectedFeedReader.getFeeds().add(new FeedElement(new URL("http://JENKINS_HOST:8080/jenkins/job/NAME_OF_THE_JOB2/rssAll"), "jenkins"));
 
         expectedFeedReader.getStatusMappings().putAll(
                 BuildStatus.BUILD_OK, Lists.newArrayList("stabil", "back to normal"));

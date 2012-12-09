@@ -1,6 +1,7 @@
 package com.cibot;
 
 import com.cibot.config.CIBotConfiguration;
+import com.cibot.config.FeedElement;
 import com.cibot.feedreader.BuildStatusChecker;
 import com.cibot.cimodel.BuildStatus;
 import com.cibot.cimodel.CIModel;
@@ -56,7 +57,7 @@ public class CIBotController {
             try {
                 synchronized (ciModel) {
                     ciModel.resetStatusMap();
-                    for (CIBotConfiguration.Feed feed : configuration.getFeedReader().getFeeds()) {
+                    for (FeedElement feed : configuration.getFeedReader().getFeeds()) {
                         BuildStatus status = buildStatusChecker.getBuildStatus(feed);
                         ciModel.setStatusForJob(feed.getJobName(), status);
                     }

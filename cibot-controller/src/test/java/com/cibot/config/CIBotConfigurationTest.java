@@ -12,13 +12,13 @@ import static org.junit.Assert.assertEquals;
  */
 public class CIBotConfigurationTest {
 
-    private CIBotConfiguration.Feed feed;
+    private FeedElement feed;
 
     private CIBotConfiguration config;
 
     @Before
     public void setup() throws Exception {
-        feed = new CIBotConfiguration.Feed(new URL("http://JENKINS_HOST:8080/jenkins/testjob/NAME_OF_THE_JOB1/rssAll"), null);
+        feed = new FeedElement(new URL("http://JENKINS_HOST:8080/jenkins/testjob/NAME_OF_THE_JOB1/rssAll"), null);
         config = new CIBotConfiguration();
         config.getFeedReader().getFeeds().add(feed);
     }
