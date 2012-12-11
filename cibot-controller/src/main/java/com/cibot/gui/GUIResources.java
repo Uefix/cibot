@@ -13,7 +13,6 @@ import java.net.URL;
 /**
  * @author Uefix
  */
-@Component
 public final class GUIResources {
 
 
